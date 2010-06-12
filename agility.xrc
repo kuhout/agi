@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<resource xmlns="http://www.wxwindows.org/wxxrc" version="2.3.0.1">
+	<object class="wxFrame" name="mainFrame">
+		<style>wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL</style>
+		<size>722,499</size>
+		<title></title>
+		<centered>1</centered>
+		<object class="wxNotebook" name="m_notebook1">
+			<object class="notebookpage">
+				<label>Týmy</label>
+				<selected>1</selected>
+				<object class="wxPanel" name="m_panel1">
+					<style>wxTAB_TRAVERSAL</style>
+					<object class="wxBoxSizer">
+						<orient>wxVERTICAL</orient>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxEXPAND</flag>
+							<border>5</border>
+							<object class="wxBoxSizer">
+								<orient>wxHORIZONTAL</orient>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALL</flag>
+									<border>5</border>
+									<object class="wxButton" name="newBook">
+										<label>Přidat tým</label>
+										<default>0</default>
+									</object>
+								</object>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxALL|wxEXPAND</flag>
+							<border>5</border>
+							<object class="unknown" name="bookList" />
+						</object>
+					</object>
+				</object>
+			</object>
+			<object class="notebookpage">
+				<label>Běhy</label>
+				<selected>0</selected>
+				<object class="wxPanel" name="m_panel6">
+					<style>wxTAB_TRAVERSAL</style>
+				</object>
+			</object>
+			<object class="notebookpage">
+				<label>Startovní listiny</label>
+				<selected>0</selected>
+				<object class="wxPanel" name="m_panel2">
+					<style>wxTAB_TRAVERSAL</style>
+					<object class="wxBoxSizer">
+						<orient>wxHORIZONTAL</orient>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALL|wxEXPAND</flag>
+							<border>5</border>
+							<object class="wxListBox" name="m_listBox14" subclass="runedit.runEditListBox">
+								<content />
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxALL|wxEXPAND</flag>
+							<border>5</border>
+							<object class="unknown" name="startList" />
+						</object>
+					</object>
+				</object>
+			</object>
+			<object class="notebookpage">
+				<label>Zápis</label>
+				<selected>0</selected>
+				<object class="wxPanel" name="m_panel3">
+					<style>wxTAB_TRAVERSAL</style>
+					<object class="wxBoxSizer">
+						<orient>wxHORIZONTAL</orient>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALL|wxEXPAND</flag>
+							<border>5</border>
+							<object class="wxListBox" name="m_listBox11" subclass="runedit.runListBox">
+								<content />
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxALL|wxEXPAND</flag>
+							<border>5</border>
+							<object class="unknown" name="m_customControl41" />
+						</object>
+					</object>
+				</object>
+			</object>
+			<object class="notebookpage">
+				<label>Výsledky</label>
+				<selected>0</selected>
+				<object class="wxPanel" name="m_panel4">
+					<style>wxTAB_TRAVERSAL</style>
+					<object class="wxBoxSizer">
+						<orient>wxHORIZONTAL</orient>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALL|wxEXPAND</flag>
+							<border>5</border>
+							<object class="wxListBox" name="m_listBox112" subclass="runedit.runListBox">
+								<content />
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxALL|wxEXPAND</flag>
+							<border>5</border>
+							<object class="unknown" name="m_customControl42" />
+						</object>
+					</object>
+				</object>
+			</object>
+		</object>
+		<object class="wxStatusBar" name="m_statusBar1">
+			<style>wxST_SIZEGRIP</style>
+			<fields>1</fields>
+		</object>
+		<object class="wxMenuBar" name="m_menubar1">
+			<label>MyMenuBar</label>
+			<object class="wxMenu" name="m_file">
+				<label>Soubor</label>
+				<object class="wxMenuItem" name="m_new">
+					<label>Nový závod</label>
+					<help></help>
+				</object>
+				<object class="wxMenuItem" name="m_open">
+					<label>Otevřít závod...</label>
+					<help></help>
+				</object>
+				<object class="separator" />
+				<object class="wxMenuItem" name="m_exit">
+					<label>Konec</label>
+					<help></help>
+				</object>
+			</object>
+			<object class="wxMenu" name="m_help">
+				<label>Nápověda</label>
+				<object class="wxMenuItem" name="m_about">
+					<label>O aplikaci</label>
+					<help></help>
+				</object>
+			</object>
+		</object>
+	</object>
+</resource>
