@@ -1,2 +1,5 @@
 *.pyc
 *.sqlite
+*.agi
+*.csv
+*.pdf

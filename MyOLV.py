@@ -2,121 +2,100 @@
 
 import wx
 import locale
-from ObjectListView import ObjectListView, ColumnDefn, EVT_CELL_EDIT_FINISHED, OLVEvent
+import copy
+from ObjectListView import FastObjectListView, ColumnDefn, EVT_CELL_EDIT_FINISHED, OLVEvent, ObjectListView
 
-class MyOLV(ObjectListView):
-  def __init__(self, parent):
-    ObjectListView.__init__(self, parent, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER)
-    self.tabbing = False
+class MyOLV(FastObjectListView):
+  def __init__(self, parent, style=0, sortable=True):
+    FastObjectListView.__init__(self, parent, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER|style, sortable=sortable)
     self.parent = parent
     self.SetEmptyListMsg(u"Žádné položky")
-
-  def Edit(self, model):
-    self.SelectObject(model, True, True)
-    self.StartCellEdit(self.GetIndexOf(model), 0)
-
-  def OnDataUpdate(self):
-    obj = self.GetSelectedObject()
-    self.SetObjects(self.queryFunction())
-    self._ReSort()
-    if obj:
-      self._SelectAndFocus(self.GetIndexOf(obj))
+    if self.smallImageList == None:
+      self.SetImageLists()
 
 
   def _ReSort(self):
     self.SortBy(self.sortColumnIndex, self.sortAscending)
     self._FormatAllRows()
 
-  def _SortItemsNow(self):
-    sortColumn = self.GetSortColumn()
-    if not sortColumn:
-      return
-
-    secondary = self.GetSecondarySortColumns()
-
-    def _singleObjectComparer(col, object1, object2):
-      value1 = col.GetValue(object1)
-      value2 = col.GetValue(object2)
-      try:
-        return locale.strcoll(value1.lower(), value2.lower())
-      except:
-        return cmp(value1, value2)
-
-    def _objectComparer(object1, object2):
-      result = _singleObjectComparer(sortColumn, object1, object2)
-      for col in secondary:
-        if result == 0:
-          result = _singleObjectComparer(col, object1, object2)
-        else:
-          break
-      return result
-
-    self.SortListItemsBy(_objectComparer)
-
-  def _HandleTabKey(self, isShiftDown):
-    (rowBeingEdited, subItem) = self.cellBeingEdited
-
-    self.tabbing = True
-    shadowSelection = self.selectionBeforeCellEdit
-    self.selectionBeforeCellEdit = []
-    self.FinishCellEdit()
-    self.tabbing = False
-
-    if self.HasFlag(wx.LC_REPORT):
-      columnCount = self.GetColumnCount()
-      for ignored in range(columnCount-1):
-        if isShiftDown:
-          subItem = (columnCount + subItem - 1) % columnCount
-        else:
-          subItem = (subItem + 1) % columnCount
-        if self.columns[subItem].isEditable and self.GetColumnWidth(subItem) > 0:
-          self.StartCellEdit(rowBeingEdited, subItem)
-          break
-
-    self.selectionBeforeCellEdit = shadowSelection
-
-  def FinishCellEdit(self):
-    """
-    Finish and commit an edit operation on the given cell.
-    """
-    (rowIndex, subItemIndex) = self.cellBeingEdited
-
-    # Give the world the chance to veto the edit, or to change its characteristics
-    rowModel = self.GetObjectAt(rowIndex)
-    evt = OLVEvent.CellEditFinishingEvent(self, rowIndex, subItemIndex, rowModel,
-                                          self.cellEditor.GetValue(), self.cellEditor, False)
-    self.GetEventHandler().ProcessEvent(evt)
-    if not evt.IsVetoed() and evt.cellValue is not None:
-        self.columns[subItemIndex].SetValue(rowModel, evt.cellValue)
-        self.RefreshIndex(rowIndex, rowModel)
-
-    self._CleanupCellEdit()
-
-    evt = OLVEvent.CellEditFinishedEvent(self, rowIndex, subItemIndex, rowModel, False)
-    self.GetEventHandler().ProcessEvent(evt)
-
-
-  def CancelCellEdit(self):
-    """
-    Cancel an edit operation on the given cell.
-    """
-    # Tell the world that the user cancelled the edit
-    (rowIndex, subItemIndex) = self.cellBeingEdited
-    evt = OLVEvent.CellEditFinishingEvent(self, rowIndex, subItemIndex,
-                                          self.GetObjectAt(rowIndex),
-                                          self.cellEditor.GetValue(),
-                                          self.cellEditor,
-                                          True)
-    self.GetEventHandler().ProcessEvent(evt)
-
-    self._CleanupCellEdit()
-
-    evt = OLVEvent.CellEditFinishedEvent(self, rowIndex, subItemIndex, rowModel, True)
-    self.GetEventHandler().ProcessEvent(evt)
 
   def GetSecondarySortColumns(self):
-    cols = [0,1,2]
+    if hasattr(self, 'secondarySortColumns'):
+      cols = copy.copy(self.secondarySortColumns)
+    else:
+      cols = []
     if cols.count(self.sortColumnIndex):
       cols.remove(self.sortColumnIndex)
     return [self.columns[c] for c in cols]
+
+
+  def _SortObjects(self, modelObjects=None, sortColumn=None, secondarySortColumns=None):
+    """
+    Sort the given modelObjects in place.
+
+    This does not change the information shown in the control itself.
+    """
+    if modelObjects is None:
+      modelObjects = self.modelObjects
+    if sortColumn is None:
+      sortColumn = self.GetSortColumn()
+    if secondarySortColumns is None:
+      secondarySortColumns = self.GetSecondarySortColumns()
+
+    # If we don't have a sort column, we can't sort -- duhh
+    if sortColumn is None:
+      return
+
+    # Let the world have a chance to sort the model objects
+    evt = OLVEvent.SortEvent(self, self.sortColumnIndex, self.sortAscending, True)
+    self.GetEventHandler().ProcessEvent(evt)
+    if evt.IsVetoed() or evt.wasHandled:
+      return
+
+    # When sorting large groups, this is called a lot. Make it efficent.
+    # It is more efficient (by about 30%) to try to call lower() and catch the
+    # exception than it is to test for the class
+    def _getSortValue(x):
+      primary = sortColumn.GetValue(x)
+      try:
+        primary = locale.strxfrm(primary.lower().encode('utf-8'))
+      except AttributeError:
+        pass
+      result = [primary]
+      for col in secondarySortColumns:
+        secondary = col.GetValue(x)
+        try:
+          secondary = locale.strxfrm(secondary.lower().encode('utf-8'))
+        except AttributeError:
+          pass
+        result.append(secondary)
+      return tuple(result)
+
+    modelObjects.sort(key=_getSortValue, reverse=(not self.sortAscending))
+
+    # Sorting invalidates our object map
+    self.objectToIndexMap = None
+
+class ColumnDefn(ColumnDefn):
+    def _StringToValue(self, value, converter):
+      """
+      Convert the given value to a string, using the given converter
+      """
+      try:
+        return converter(value)
+      except TypeError:
+        pass
+
+      if converter and isinstance(value, (datetime.datetime, datetime.date, datetime.time)):
+        return value.strftime(self.stringConverter)
+
+      # By default, None is changed to an empty string.
+      if not converter and not value and value != 0:
+        return ""
+
+      fmt = converter or "%s"
+      try:
+        return fmt % value
+      except UnicodeError:
+        return unicode(fmt) % value
 
