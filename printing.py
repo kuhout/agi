@@ -3,6 +3,7 @@ import wx
 
 import db
 import locale
+from network import Client
 from time import strftime
 from Formatter import *
 from reportlab.platypus import Spacer, SimpleDocTemplate, Table, TableStyle, BaseDocTemplate, PageTemplate, Frame
@@ -29,7 +30,7 @@ headingStyle = ParagraphStyle(name='Heading', fontSize=19, fontName='DejaVuSans-
 subHeadingStyle = ParagraphStyle(name='Subheading', fontSize=16, fontName='DejaVuSans-Bold', alignment=1, leading=22, spaceAfter=6)
 
 
-def GetTeamsTable():
+def GetTeamsTable(teams):
   style = TableStyle([
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
     ('FONT', (0,0), (-1,-1), "DejaVuSans"),
@@ -39,7 +40,6 @@ def GetTeamsTable():
     ('VALIGN', (0,0), (-1,-1), 'TOP'),
     ])
 
-  teams = db.Team.query.order_by(db.Team.table.c.handler_surname, db.Team.table.c.handler_name, db.Team.table.c.dog_name).all()
   table = []
 
   headers = ["Přít", "Číslo", "Jméno", "Příjmení", "Pes", "Chovná stanice", "Plemeno", "Kat", "Vel", "Průkaz"]
@@ -48,51 +48,50 @@ def GetTeamsTable():
 
   for r in teams:
     row = []
-    if r.present:
+    if r['present']:
       row.append(u"\u2713")
     else:
       row.append("")
-    row.append(str(r.start_num))
-    row.append(r.handler_name)
-    row.append(r.handler_surname)
-    row.append(r.dog_name)
-    row.append(r.dog_kennel)
-    row.append(r.dog_breed)
-    row.append(GetFormatter("category").format(r.category))
-    row.append(GetFormatter("size").format(r.size))
-    row.append(r.number)
+    row.append(str(r['start_num']))
+    row.append(r['handler_name'])
+    row.append(r['handler_surname'])
+    row.append(r['dog_name'])
+    row.append(r['dog_kennel'])
+    row.append(r['dog_breed'])
+    row.append(GetFormatter("category").format(r['category']))
+    row.append(GetFormatter("size").format(r['size']))
+    row.append(r['number'])
 
     row = map(lambda x: Paragraph(x, normalStyle), row)
     table.append(row)
 
   return Table(table, style=style, colWidths=widths, repeatRows=1)
 
-def PrintTeams():
+def PrintTeams(data):
   lst = []
-  teams = GetTeamsTable()
+  teams = GetTeamsTable(data)
   lst.append(Paragraph(u"Seznam účastníků", headingStyle))
   lst.append(teams)
 
   Print(lst)
 
-def GetEntryTable(run):
-  entry = db.GetStartList(run)
+def GetEntryTable(entry, run):
   table = []
 
   headers = ["Pořadí", "Číslo", "Psovod", "Pes", "Přezdívka", "Chyby", "Odmítnutí", "Čas"]
-  if run.squads:
+  if run['squads']:
     headers.insert(2, "Družstvo")
   table.append(headers)
 
   for r in entry:
     row = []
-    row.append(r.order)
-    row.append(r.start_num)
-    if run.squads:
-      row.append(r.squad)
-    row.append(r.handlerFullName())
-    row.append(r.dogFullName())
-    row.append(r.dog_nick)
+    row.append(r['order'])
+    row.append(r['start_num'])
+    if run['squads']:
+      row.append(r['squad'])
+    row.append(r['handler_name'] + ' ' + r['handler_surname'])
+    row.append(r['dog_name'] + ' ' + r['dog_kennel'])
+    row.append(r['dog_nick'])
     row.append("")
     row.append("")
     row.append("")
@@ -101,9 +100,9 @@ def GetEntryTable(run):
 
   return table
 
-def PrintEntry(run):
+def PrintEntry(data, run):
   lst = []
-  entry = GetEntryTable(run)
+  entry = GetEntryTable(data, run)
   style = TableStyle([
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
     ('FONT', (0,0), (-1,-1), "DejaVuSans"),
@@ -116,41 +115,41 @@ def PrintEntry(run):
     ])
 
   lst.append(Paragraph(u"Zápis výsledků", headingStyle))
-  lst.append(Paragraph(run.NiceName(), subHeadingStyle))
+  lst.append(Paragraph(run['nice_name'], subHeadingStyle))
   lst.append(Table(entry, style=style, repeatRows=1))
 
   Print(lst)
 
-def GetStartTable(run):
-  start = db.GetStartList(run)
+def GetStartTable(start, run):
   table = []
 
-  headers = ["Pořadí", "Číslo", "Psovod", "Pes", "Plemeno"]
-  if run.squads:
+  headers = ["Pořadí", "Číslo", "Psovod", "Pes", "Plemeno", "OSA"]
+  if run['squads']:
     headers.insert(2, "Družstvo")
-  if run.variant != 0:
+  if run['variant'] != 0:
     headers.append("Kategorie")
   table.append(headers)
 
   for r in start:
     row = []
-    row.append(r.order)
-    row.append(r.start_num)
-    if run.squads:
-      row.append(r.squad)
-    row.append(r.handlerFullName())
-    row.append(r.dogFullName())
-    row.append(r.dog_breed)
-    if run.variant != 0:
-      row.append(GetFormatter("category").format(r.category))
+    row.append(r['order'])
+    row.append(r['start_num'])
+    if run['squads']:
+      row.append(r['squad'])
+    row.append(r['handler_name'] + ' ' + r['handler_surname'])
+    row.append(r['dog_name'] + ' ' + r['dog_kennel'])
+    row.append(r['breed']['name'])
+    row.append(r['osa'])
+    if run['variant'] != 0:
+      row.append(GetFormatter("category").format(r['category']))
 
     table.append(row)
 
   return table
 
-def PrintStart(run):
+def PrintStart(data, run):
   lst = []
-  start = GetStartTable(run)
+  start = GetStartTable(data, run)
   style = TableStyle([
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
     ('FONT', (0,0), (-1,-1), "DejaVuSans"),
@@ -161,13 +160,12 @@ def PrintStart(run):
     ])
 
   lst.append(Paragraph(u"Startovní listina", headingStyle))
-  lst.append(Paragraph(run.NiceName(), subHeadingStyle))
+  lst.append(Paragraph(run['nice_name'], subHeadingStyle))
   lst.append(Table(start, style=style, repeatRows=1))
 
   Print(lst)
 
-def GetSquadResultsTable(run):
-  results = db.GetSquadResults(run)
+def GetSquadResultsTable(results):
   table = []
 
   headers = ["#", "Družstvo", "Tr. b.", "Čas", "Číslo", "Psovod", "Pes", "Plemeno", "Chb", "Odm", "Čas", "Tr. b.", "m/s"]
@@ -216,7 +214,7 @@ def GetSquadResultsTable(run):
       row.append(m['team_start_num'])
       row.append(Paragraph(m['team_handler'], normalStyle))
       row.append(Paragraph(m['team_dog'], normalStyle))
-      row.append(Paragraph(m['team_dog_breed'], normalStyle))
+      row.append(Paragraph(m['breed_name'], normalStyle))
       if m['disq']:
         for i in range(5):
           row.append("DIS")
@@ -231,12 +229,11 @@ def GetSquadResultsTable(run):
 
   return Table(table, style=TableStyle(style), colWidths=widths, repeatRows=1)
 
-def GetResultsTable(run):
-  results = db.GetResults(run)
+def GetResultsTable(results, run):
   table = []
 
-  headers = ["#", "Číslo", "Psovod", "Pes", "Plemeno", "Chb", "Odm", "Čas", "Tr. b.", "m/s"]
-  if run.variant == 0:
+  headers = ["#", "Číslo", "Psovod", "Pes", "Plemeno", "OSA", "Chb", "Odm", "Čas", "Tr. b.", "m/s"]
+  if run['variant'] == 0:
     headers.insert(5, "Kat")
     headers.insert(1, "Hod")
   table.append(headers)
@@ -259,13 +256,14 @@ def GetResultsTable(run):
     else:
       rank = r['rank']
     row.append(rank)
-    if run.variant == 0:
+    if run['variant'] == 0:
       row.append(r['rating'])
     row.append(r['team_start_num'])
     row.append(r['team_handler'])
     row.append(r['team_dog'])
-    row.append(r['team_dog_breed'])
-    if run.variant == 0:
+    row.append(r['breed_name'])
+    row.append(r['team_osa'])
+    if run['variant'] == 0:
       row.append(GetFormatter("category").format(r['team_category']))
     if r['disq'] == 1:
       for i in range(5):
@@ -281,18 +279,17 @@ def GetResultsTable(run):
 
   return Table(table, style=TableStyle(style), repeatRows=1)
 
-def PrintResults(run):
+def PrintResults(data, run):
   lst = []
-  if run.squads:
-    results = GetSquadResultsTable(run)
+  if run['squads']:
+    results = GetSquadResultsTable(data)
   else:
-    results = GetResultsTable(run)
+    results = GetResultsTable(data, run)
 
-  time, max_time = db.GetRunTimes(run)
-  runData = u"Rozhodčí: %s --- Počet překážek: %d --- Standardní čas: %.2f s --- Maximální čas: %.2f s --- Délka: %.2f m --- Rychlost: %.2f m/s" % (run.judge, run.hurdles, time, max_time, run.length, run.length/time)
+  runData = u"Rozhodčí: %s --- Počet překážek: %d --- Standardní čas: %.2f s --- Maximální čas: %.2f s --- Délka: %.2f m --- Rychlost: %.2f m/s" % (run['judge'], run['hurdles'], run['time'], run['max_time'], run['length'], run['length']/run['time'])
   lst.append(Spacer(1, 0.5*cm))
   lst.append(Paragraph(u"Výsledky", headingStyle))
-  lst.append(Paragraph(run.NiceName(), subHeadingStyle))
+  lst.append(Paragraph(run['nice_name'], subHeadingStyle))
   lst.append(Spacer(1, 0.2*cm))
   lst.append(Paragraph(runData, normalCenterStyle))
   lst.append(Spacer(1, 0.2*cm))
@@ -300,9 +297,7 @@ def PrintResults(run):
 
   Print(lst)
 
-def GetSquadSumsTable(runs):
-  sums = db.GetSquadSums(runs)
-
+def GetSquadSumsTable(sums):
   style = [
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
     ('FONT', (0,0), (-1,-1), "DejaVuSans"),
@@ -348,16 +343,14 @@ def GetSquadSumsTable(runs):
       row.append(m['team_start_num'])
       row.append(Paragraph(m['team_handler'], normalStyle))
       row.append(Paragraph(m['team_dog'], normalStyle))
-      row.append(Paragraph(m['team_dog_breed'], normalStyle))
+      row.append(Paragraph(m['breed_name'], normalStyle))
       row.append(GetFormatter("category").format(m['team_category']))
 
       table.append(row)
 
   return Table(table, style=TableStyle(style), colWidths=widths, repeatRows=1)
 
-def GetSumsTable(runs):
-  sums = db.GetSums(runs)
-
+def GetSumsTable(sums):
   style = TableStyle([
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
     ('FONT', (0,0), (-1,-1), "DejaVuSans"),
@@ -369,7 +362,7 @@ def GetSumsTable(runs):
 
   table = []
 
-  table.append(["#", "Číslo", "Psovod", "Pes", "Plemeno", "Kat", "Čas", "Tr. b.", "m/s"])
+  table.append(["#", "Číslo", "Psovod", "Pes", "Plemeno", "OSA", "Kat", "Čas", "Tr. b.", "m/s"])
 
   for s in sums:
     row = []
@@ -381,7 +374,8 @@ def GetSumsTable(runs):
     row.append(s['team_id'])
     row.append(s['team_handler'])
     row.append(s['team_dog'])
-    row.append(s['team_dog_breed'])
+    row.append(s['breed_name'])
+    row.append(s['team_osa'])
     row.append(GetFormatter("category").format(s['team_category']))
     if s['disq']:
       for i in range(3):
@@ -395,15 +389,15 @@ def GetSumsTable(runs):
 
   return Table(table, style=style, repeatRows=1)
 
-def PrintSums(runs):
+def PrintSums(data, runs):
   lst = []
-  if runs[0].squads:
-    table = GetSquadSumsTable(runs)
+  if runs[0]['squads']:
+    table = GetSquadSumsTable(data)
   else:
-    table = GetSumsTable(runs)
+    table = GetSumsTable(data)
 
   lst.append(Paragraph(u"Součty", headingStyle))
-  lst.append(Paragraph(' + '.join([x.NiceName() for x in runs]), subHeadingStyle))
+  lst.append(Paragraph(' + '.join([x['nice_name'] for x in runs]), subHeadingStyle))
   lst.append(table)
 
   Print(lst)
@@ -429,7 +423,10 @@ class MyTemplate(PageTemplate):
     canvas.restoreState()
 
 def Print(doc):
-  params = {'comp_name': db.GetParam("competition_name"), 'date': strftime(locale.nl_langinfo(locale.D_FMT))}
+  Client().Get(("param", "competition_name"), lambda r: _gotCompName(doc, r))
+
+def _gotCompName(doc, comp_name):
+  params = {'comp_name': comp_name['value'], 'date': strftime(locale.nl_langinfo(locale.D_FMT))}
   c = BaseDocTemplate("output.pdf", pageTemplates=[MyTemplate(params)], pagesize=pagesizes.landscape(pagesizes.A4), rightMargin=1*cm,leftMargin=1*cm, topMargin=1*cm, bottomMargin=1*cm)
   c.build(doc)
   p = subprocess.Popen(['lpr', '-o landscape', 'output.pdf'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)

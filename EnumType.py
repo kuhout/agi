@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import copy
 
 class EnumType( object ):
     """
@@ -7,16 +8,12 @@ class EnumType( object ):
     Allows reference to enumerated values by name
     or by index (i.e., bidirectional mapping).
     """
-    def __init__( self, *names ):
+    def __init__( self, d ):
         # Remember names list for reference by index
-        self._names = list(names)
+        self._names = dict(d)
     
     def __contains__( self, item ):
-        try:
-            trans = self[item]
-            return True
-        except:
-            return False
+        return item in self._names.values()
     
     def __iter__( self ):
         return enumerate( self._names )
@@ -32,17 +29,16 @@ class EnumType( object ):
     
     def items( self ):
         return [ (idx, self._names[idx])
-                for idx in range(0, len(self._names) ) ]
-    
-    
+                for idx in self._names.keys() ]
+
     def names( self ):
-        return self._names[:]
+        return copy.copy(self._names)
 
     def get(self, key):
       return self.__getitem__(key)
     
     def _nameToEnum( self, name ):
-      for _i, _s in enumerate( self._names ):
-        if _s == name:
-          return _i
+      for i in self.items():
+        if i[1] == name:
+          return i[0]
       raise ValueError

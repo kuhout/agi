@@ -3,6 +3,8 @@ from elixir import *
 from pubsub import pub
 import random
 import os
+import shutil
+import csv, codecs
 from math import ceil
 from Formatter import *
 from sqlalchemy.sql import and_, or_, not_, text
@@ -22,9 +24,10 @@ class Team(Entity):
   handler_surname = Field(Unicode(50), default=u"")
   dog_name = Field(Unicode(50), default=u"")
   dog_kennel = Field(Unicode(50), default=u"")
-  dog_breed = Field(Unicode(50), default=u"")
+  dog_breed = ManyToOne('Breed')
   dog_nick = Field(Unicode(50), default=u"")
   squad = Field(Unicode(50), default=u"")
+  osa = Field(Unicode(50), default=u"")
   category = Field(Integer, default=0)
   size = Field(Integer, default=0)
   present = Field(Integer, default=0)
@@ -41,6 +44,10 @@ class Team(Entity):
   def IsPresent(self):
     return self.present == 1
 
+  def SetBreed(self, breed):
+    b = Breed.get_by(name=breed)
+    self.dog_breed_id = b.id
+
   def IsBlank(self):
     d = self.to_dict()
     del d["id"]
@@ -49,16 +56,25 @@ class Team(Entity):
         return False
     return True
 
+class Breed(Entity):
+  id = Field(Integer, autoincrement=True, unique=True, primary_key=True, index=True)
+  name = Field(Unicode(100), default=u"")
+  dogs = OneToMany('Team')
+
+class BreedFilter(Entity):
+  id = Field(Integer, autoincrement=True, unique=True, primary_key=True, index=True)
+  breed = ManyToOne('Breed', ondelete="cascade", column_kwargs={'index':True})
+  run = ManyToOne('Run', ondelete="cascade", column_kwargs={'index':True})
 
 class Result(Entity):
+  id = Field(Integer, autoincrement=True, unique=True, primary_key=True, index=True)
+  team = ManyToOne('Team', ondelete="cascade", column_kwargs={'index':True})
+  run = ManyToOne('Run', ondelete="cascade", column_kwargs={'index':True})
   time = Field(Float, default=0.0)
   refusals = Field(Integer, default=0)
   mistakes = Field(Integer, default=0)
   disqualified = Field(Integer, default=0)
-  team = ManyToOne('Team', ondelete="cascade", column_kwargs={'primary_key':True, 'index':True})
-  run = ManyToOne('Run', ondelete="cascade", column_kwargs={'primary_key':True, 'index':True})
   using_table_options(UniqueConstraint('run_id', 'team_id'))
-
 
 class Run(Entity):
   id = Field(Integer, autoincrement=True, unique=True, primary_key=True, index=True)
@@ -86,38 +102,152 @@ class Run(Entity):
 
 
 class Sort(Entity):
-  team = ManyToOne('Team', ondelete="cascade", column_kwargs={'primary_key':True, 'index':True})
-  run = ManyToOne('Run', ondelete="cascade", column_kwargs={'primary_key':True, 'index':True})
+  id = Field(Integer, autoincrement=True, unique=True, primary_key=True, index=True)
+  team = ManyToOne('Team', ondelete="cascade", column_kwargs={'index':True})
+  run = ManyToOne('Run', ondelete="cascade", column_kwargs={'index':True})
   value = Field(Integer, default=0)
   using_table_options(UniqueConstraint('run_id', 'team_id'))
 
 
+class ServerCache():
+  __shared_state = {}
+  def __init__(self):
+    self.__dict__ = self.__shared_state
 
-def UpdateResultFromDict(result):
-  if result:
-    obj = Result.get_by(team_id=result['team_id'], run_id=result['run_id'])
-    for a in ['refusals', 'mistakes', 'time', 'disqualified']:
-      setattr(obj, a, result[a])
-    session.commit()
+  def Initialize(self, lock):
+    self.lock = lock
+    self.Clear()
+
+  def Clear(self):
+    self.cache = {}
+
+  def Get(self, what, call):
+    self.lock.acquire()
+    if what in self.cache.keys():
+      res = self.cache[what]
+      self.lock.release()
+    else:
+      self.lock.release()
+      res = call()
+      self.lock.acquire()
+      self.cache[what] = res
+      self.lock.release()
+    return res
+
+  def Invalidate(self, what):
+    self.lock.acquire()
+    for w in what:
+      if w in self.cache.keys():
+        del self.cache[w]
+    self.lock.release()
+    return what
+
+  def InvalidateRun(self, id, except_runs=False):
+    invalidate = [('squad_results', id), ('run_times', id), ('results', id), ('start_list', id), ('start_list_with_removed', id)]
+    if not except_runs:
+      invalidate.append(('runs', None))
+    for r in Run.query.filter(Run.table.c.sort_run_id == id).all():
+      invalidate.append(('start_list', r.id))
+      invalidate.append(('start_list_with_removed', r.id))
+    self.lock.acquire()
+    for k in self.cache.keys():
+      if k[0] == 'sums' and id in k[1]:
+        invalidate.append(k)
+    self.lock.release()
+    return self.Invalidate(invalidate)
+
+  def InvalidateAll(self, exc=[]):
+    self.lock.acquire()
+    inv = []
+    for k in self.cache.keys():
+      if not k in exc:
+        del self.cache[k]
+        inv.append(k)
+    self.lock.release()
+    return inv
+
+def Update(classname, values, *args, **kwargs):
+  id = values['id']
+  del values['id']
+  c = globals()[classname.capitalize()]
+
+  obj = c.get_by(id=id)
+  if 'destroy' in kwargs.keys():
+    obj.delete()
+  elif classname == 'param':
+    return SetParamObject(values)
+  else:
+    for col in c.table.columns:
+      if col.name in values.keys():
+        setattr(obj, col.name, values[col.name])
+    if 'grab_start_num' in kwargs.keys():
+      #teams
+      setattr(obj, 'start_num', GetNextStartNum())
+    if classname == 'run':
+      BreedFilter.query.filter_by(run_id=obj.id).delete()
+      for b in values['breeds']:
+        f = BreedFilter(breed_id=b, run_id=obj.id)
+  session.commit()
+
+  if classname == 'result':
+    return ServerCache().InvalidateRun(obj.run_id, except_runs=True)
+  if classname == 'run':
+    return ServerCache().InvalidateRun(obj.id)
+  if classname == 'sort':
+    i = [('start_list', obj.run_id), ('start_list_with_removed', obj.run_id), ('runs', None)]
+    return ServerCache().Invalidate(i)
+  if classname == 'team':
+    return ServerCache().InvalidateAll(exc=[('runs', None)])
+
+def Create(classname):
+  c = globals()[classname.capitalize()]
+  obj = c()
+  session.commit()
+  r = obj.to_dict()
+  if classname == 'run':
+    r['breeds'] = []
+  return r
+
+def GetTeams():
+  res = []
+  for t in Team.query.order_by(Team.table.c.handler_surname, Team.table.c.handler_name, Team.table.c.dog_name).outerjoin(Breed.table).add_entity(Breed).all():
+    team = t[0].to_dict()
+    if t[1]:
+      team['dog_breed'] = t[1].name
+    else:
+      team['dog_breed'] = ""
+    res.append(team)
+  return res
+
+def GetBreeds():
+  return map(lambda t: t.to_dict(), Breed.query.order_by(Breed.table.c.name).all())
+
+def GetRuns():
+  res = []
+  for r in Run.query.order_by(Run.table.c.date, Run.table.c.name, Run.table.c.size, Run.table.c.category).all():
+    d = r.to_dict()
+    d['nice_name'] = r.NiceName()
+    d['breeds'] = []
+    for b in BreedFilter.query.filter_by(run_id=r.id).all():
+      d['breeds'].append(b.breed_id)
+    res.append(d)
+    print d
+  return res
 
 def OpenFile(filename):
+  if not os.path.isfile(filename):
+    shutil.copy("default.db", filename)
   metadata.bind = "sqlite:///" + filename
   #metadata.bind.echo = True
   setup_all()
-  if not os.path.isfile(filename):
-    create_all()
   session.configure(autocommit=False, autoflush=True)
   #expire_on_commit=False)
-  metadata.bind.engine.connect().execute("PRAGMA synchronous = OFF")
+  #metadata.bind.engine.connect().execute("PRAGMA synchronous = OFF")
 
 
-def GetResultsAsDicts(selectable):
+def GetRowsAsDicts(selectable):
   t = session.execute(selectable).fetchall()
-  results = []
-  for r in t:
-    r = dict(zip(r.keys(), r.values()))
-    results.append(r)
-  return results
+  return map(dict, t)
 
 def RandomizeStartNums():
   teams = Team.query.all()
@@ -127,10 +257,11 @@ def RandomizeStartNums():
     teams[i].start_num = i+1
 
   session.commit()
+  return ServerCache().InvalidateAll(exc=[('runs', None)])
 
 def GetNextStartNum():
   n = session.query(select([func.max(Team.table.c.start_num)])).one()[0]
-  if n == None:
+  if n is None:
     n = 1
   else:
     n = n+1
@@ -138,10 +269,16 @@ def GetNextStartNum():
 
 def GetParamObject(name):
   p = Param.get_by(name=name)
-  if p:
-    return p
-  else:
-    return Param(name=name)
+  if not p:
+    p = Param(name=name)
+    session.commit()
+  return p.to_dict()
+
+def SetParamObject(obj):
+  p = Param.get_by(name=obj['name'])
+  p.value = obj['value']
+  session.commit()
+  return ServerCache().Invalidate([('param', obj['name'])])
 
 def GetParam(name):
   p = GetParamObject(name)
@@ -157,12 +294,13 @@ def SetParam(name, value):
   else:
     p = Param(name=name, value=value)
   session.commit()
+  return ServerCache().Invalidate([('param', name)])
 
 def DoSpacing(a, space=7):
   #ensures proper spacing of handlers
   def app(k):
     res.append(k)
-    last.append(k.handlerFullName())
+    last.append(k['handler_name'] + k['handler_surname'])
     if len(last) > space:
       last.pop(0)
 
@@ -170,10 +308,10 @@ def DoSpacing(a, space=7):
 
   for e in a:
     for k in stack:
-      if k.handlerFullName() not in last:
+      if k['handler_name'] + k['handler_surname'] not in last:
         stack.remove(k)
         app(k)
-    if e.handlerFullName() not in last:
+    if e['handler_name'] + e['handler_surname'] not in last:
       app(e)
     else:
       stack.append(e)
@@ -182,9 +320,10 @@ def DoSpacing(a, space=7):
     res.extend(stack)
   return res, len(stack) > 0
 
-def GetSquads(run=None):
+def GetSquads(run_id=None):
   conditions = (Team.table.c.present == 1)
-  if run:
+  if run_id:
+    run = Run.get_by(id=run_id)
     conditions = conditions & (Team.table.c.size==run.size)
   res = session.execute(select([distinct(Team.table.c.squad)], conditions)).fetchall()
   squads = [item for sublist in res for item in sublist]
@@ -193,65 +332,59 @@ def GetSquads(run=None):
       squads.remove(s)
   return squads
 
-def GetStartList(run, includeRemoved=False):
+def GetStartList(run_id, includeRemoved=False):
+  run = Run.get_by(id=run_id)
   if run:
-    if not run.sort_run_id:
-      sq = aliased(Result, Result.query.filter_by(run=run).subquery())
-      sort = aliased(Sort, Sort.query.filter_by(run=run).subquery())
-      query = Team.query.filter_by(size=run.size).filter_by(present=1)
-      if run.variant == 0:
-        query = query.filter_by(category=run.category)
-      else:
-        query = query.filter(Team.table.c.category!=3)
-
-      if run.squads:
-        query = query.filter(func.ifnull(Team.table.c.squad, "") != "")
-        #magic numbers ahoy! these are actually random
-        order = [func.length(Team.table.c.squad) * 133 % 204, Team.table.c.squad, Team.table.c.start_num]
-      else:
-        #beginning, end, start number
-        order = [func.ifnull(sort.value, 0) != 1, func.ifnull(sort.value, 0) == 2, Team.table.c.start_num]
-
-      if includeRemoved:
-        #put removed teams at the end
-        order.insert(0, func.ifnull(sort.value, 0) == 3)
-      else:
-        #or don't get them at all
-        query = query.filter(func.ifnull(sort.value, 1) != 3)
-
-      query = query.add_entity(sq).add_entity(sort).outerjoin(sq).outerjoin(sort).order_by(*order)
-      query = query.all()
+    breeds = BreedFilter.query.filter_by(run=run).all()
+    sq = aliased(Result, Result.query.filter_by(run=run).subquery())
+    sort = aliased(Sort, Sort.query.filter_by(run=run).subquery())
+    query = Team.query.filter_by(size=run.size).filter_by(present=1)
+    if len(breeds):
+      query = query.filter(Team.table.c.dog_breed_id.in_([b.breed_id for b in breeds]))
+    if run.variant == 0:
+      query = query.filter_by(category=run.category)
     else:
-      if run.squads:
-        query = []
-        squad_results = GetSquadResults(Run.get_by(id=run.sort_run_id))
-        for r in squad_results:
-          for m in r['members']:
-            query.append((Team.get_by(id=m['team_id']), Result.get_by(team_id=m['team_id'], run_id=run.id), Sort.get_by(team_id=m['team_id'], run_id=run.id)))
+      query = query.filter(Team.table.c.category!=3)
 
-      else:
-        query, aliases = ResultQuery(Run.get_by(id=run.sort_run_id), resultsFrom=run)
-        query = query.all()
+    if run.squads:
+      query = query.filter(func.ifnull(Team.table.c.squad, "") != "")
+      #magic numbers ahoy! these are actually random
+      order = [func.length(Team.table.c.squad) * 133 % 204, Team.table.c.squad, Team.table.c.start_num]
+    else:
+      #beginning, end, start number
+      order = [func.ifnull(sort.value, 0) != 1, func.ifnull(sort.value, 0) == 2, Team.table.c.start_num]
 
-      query.reverse()
+    if includeRemoved:
+      #put removed teams at the end
+      order.insert(0, func.ifnull(sort.value, 0) == 3)
+    else:
+      #or don't get them at all
+      query = query.filter(func.ifnull(sort.value, 1) != 3)
+
+    query = query.add_entity(sq).add_entity(sort).outerjoin(sq).outerjoin(sort).add_entity(Breed).outerjoin(Breed.table).order_by(*order)
+    query = query.all()
 
     result = []
     new_entries = False
     for t in query:
-      team = t[0]
+      team = t[0].to_dict()
       if t[1]:
         res = t[1]
       else:
-        res = Result(team=team, run=run)
+        res = Result(team_id=team['id'], run_id=run.id)
         new_entries = True
       if t[2]:
         sort = t[2]
       else:
-        sort = Sort(team=team, run=run)
+        sort = Sort(team_id=team['id'], run_id=run.id)
         new_entries = True
-      setattr(team, 'result', res)
-      setattr(team, 'sort', sort)
+      team['result'] = res.to_dict()
+      team['sort'] = sort.to_dict()
+      team['breed'] = t[3].to_dict()
       result.append(team)
+
+    if new_entries:
+      session.commit()
 
     if not run.squads and not run.sort_run_id:
       spacing = 8
@@ -263,42 +396,62 @@ def GetStartList(run, includeRemoved=False):
         if not r:
           break
         spacing -= 1
+    elif run.sort_run_id:
+      sort = []
+      if run.squads:
+        squad_results = ServerCache().Get(('squad_results', run.sort_run_id), lambda: GetSquadResults(run.sort_run_id))
+        for r in squad_results:
+          for m in r['members']:
+            sort.append(m['team_id'])
+
+      else:
+        indiv_results = ServerCache().Get(('results', run.sort_run_id), lambda: GetResults(run.sort_run_id))
+        for r in indiv_results:
+          sort.append(r['team_id'])
+
+      for r in result[:]:
+        if not r['id'] in sort:
+          result.remove(r)
+      result.sort(key=lambda t: sort.index(t['id']), reverse=True)
+
 
     order = 0
     for t in result:
       order += 1
-      setattr(t, 'order', order)
-
-    if new_entries:
-      session.commit()
+      t['order'] = order
 
     return result
   else:
     return []
 
 
-def GetRunTimes(run):
-  if run.time_calc:
-    query, aliases = ResultQuery(run, 999, 999)
-    prelim = session.execute(query).fetchall()
-    if not len(prelim) or prelim[0]['speed'] < run.min_speed:
-      if not run.min_speed:
-        time = 0
+def GetRunTimes(run_id):
+  run = Run.get_by(id=run_id)
+  if run:
+    if run.time_calc:
+      query, aliases = ResultQuery(run_id, 999, 999)
+      prelim = session.execute(query).fetchall()
+      if not len(prelim) or prelim[0]['speed'] < run.min_speed:
+        if not run.min_speed:
+          time = 0
+        else:
+          time = run.length / run.min_speed * run.time
       else:
-        time = run.length / run.min_speed * run.time
+        time = prelim[0]['result_time'] * run.time
+      max_time = time * run.max_time
+      return (ceil(time), ceil(max_time))
     else:
-      time = prelim[0]['result_time'] * run.time
-    max_time = time * run.max_time
-    return (ceil(time), ceil(max_time))
+      return (run.time, run.max_time)
   else:
-    return (run.time, run.max_time)
+    return (0, 0)
 
 
 def GetSquadSums(runs):
   if runs:
     run_results = []
-    for r in runs:
-      res = GetSquadResults(r, keyed=True)
+    for run_id in runs:
+      res = ServerCache().Get(('squad_results', run_id), lambda: GetSquadResults(run_id))
+      res = dict(map(lambda x: (x['name'], x), res))
       run_results.append(res)
 
     sums = run_results[0].values()
@@ -324,42 +477,39 @@ def GetSquadSums(runs):
   return sums
 
 
-def GetSquadResults(run, keyed=False):
+def GetSquadResults(run_id):
   squads = []
-  squad_list = GetSquads(run)
-  time, max_time = GetRunTimes(run)
-  if None in squad_list:
-    squad_list.remove(None)
+  run = Run.get_by(id=run_id)
+  if run:
+    query, aliases = ResultQuery(run_id, include_absent=True)
+    squad_list = ServerCache().Get(('squads', run_id), lambda: GetSquads(run_id))
+    time, max_time = ServerCache().Get(('run_times', run_id), lambda: GetRunTimes(run_id))
+    if None in squad_list:
+      squad_list.remove(None)
+    if "" in squad_list:
+      squad_list.remove("")
 
-  for s in squad_list:
-    query, aliases = ResultQuery(run, includeAbsent=True)
+    for s in squad_list:
+      squery = query.filter(func.ifnull(aliases['team'].c.squad, "") == s)
+      rows = session.execute(squery).fetchall()
 
-    query = query.filter(func.ifnull(aliases['team'].c.squad, "") == s)
-    rows = session.execute(query).fetchall()
+      results = []
+      for r in rows:
+        r = dict(zip(r.keys(), r.values()))
+        results.append(r)
 
-    results = []
-    for r in rows:
-      r = dict(zip(r.keys(), r.values()))
-      results.append(r)
+      squad = {"name": s,
+        "penalty": reduce(lambda x,y: x + y['penalty'], results[0:3], 0),
+        "time_pen": reduce(lambda x,y: x + y['time_penalty'], results[0:3], 0),
+        "total_penalty": reduce(lambda x,y: x + y['time_penalty'] + y['penalty'], results[0:3], 0),
+        "result_time": reduce(lambda x,y: x + y['result_time'], results[0:3], 0),
+        "disq_count": reduce(lambda x,y: x + y['disq'], results, 0),
+        "disq": len(results) - reduce(lambda x,y: x + y['disq'], results, 0) < 3,
+        'members': results
+        }
 
-    squad = {"name": s,
-      "penalty": reduce(lambda x,y: x + y['penalty'], results[0:3], 0),
-      "time_pen": reduce(lambda x,y: x + y['time_penalty'], results[0:3], 0),
-      "total_penalty": reduce(lambda x,y: x + y['time_penalty'] + y['penalty'], results[0:3], 0),
-      "result_time": reduce(lambda x,y: x + y['result_time'], results[0:3], 0),
-      "disq_count": reduce(lambda x,y: x + y['disq'], results, 0),
-      "disq": len(results) - reduce(lambda x,y: x + y['disq'], results, 0) < 3,
-      'members': results
-      }
-
-    if keyed:
-      squads.append((squad['name'], squad))
-    else:
       squads.append(squad)
 
-  if keyed:
-    return dict(squads)
-  else:
     squads.sort(key=lambda s: (s['disq']* s['disq_count'], s['total_penalty'], s['penalty'], s['result_time']))
 
     rank = 0
@@ -367,84 +517,96 @@ def GetSquadResults(run, keyed=False):
       rank += 1
       s['rank'] = rank
 
-    return squads
+  return squads
 
 
-def ResultQuery(run, max_time=None, time=None, includeAbsent=False, resultsFrom=None):
+def ResultQuery(run_id, max_time=None, time=None, include_absent=False, results_from_id=None):
   if max_time == None and time == None:
-    time, max_time = GetRunTimes(run)
+    time, max_time = ServerCache().Get(('run_times', run_id), lambda: GetRunTimes(run_id))
 
-  r = session.query()
-  team = alias(select([Team.table], Team.table.c.present==1), alias="team")
-  sort = alias(select([Sort.table], Sort.table.c.run_id==run.id), alias="sort")
-  res = alias(select([Result.table], Result.table.c.run_id==run.id), alias="result")
-  r = r.add_entity(Team, alias=team)
-  if resultsFrom:
-    res_from = alias(select([Result.table], Result.table.c.run_id==resultsFrom.id), alias="result_from")
-    r = r.add_entity(Result, alias=res_from)
+  run = Run.get_by(id=run_id)
+  if run:
+    r = session.query()
+    team = alias(select([Team.table], Team.table.c.present==1), alias="team")
+    sort = alias(select([Sort.table], Sort.table.c.run_id==run_id), alias="sort")
+    breed = alias(select([Breed.table]), alias="breed")
+    res = alias(select([Result.table], Result.table.c.run_id==run_id), alias="result")
+    r = r.add_entity(Team, alias=team)
+    if results_from_id:
+      res_from = alias(select([Result.table], Result.table.c.run_id==results_from_id), alias="result_from")
+      r = r.add_entity(Result, alias=res_from)
+      r = r.add_entity(Result, alias=res)
+      r = r.outerjoin(res).outerjoin(res_from)
+    else:
+      r = r.add_entity(Result, alias=res)
+      r = r.outerjoin(res)
+    r = r.add_entity(Breed, alias=breed)
     r = r.add_entity(Sort, alias=sort)
-    r = r.add_entity(Result, alias=res)
-    r = r.outerjoin(res).outerjoin(sort).outerjoin(res_from)
+    r = r.outerjoin(sort).outerjoin(breed)
+    r = r.add_columns((team.c.handler_name + ' ' + team.c.handler_surname).label("team_handler"))
+    r = r.add_columns((team.c.dog_name + ' ' + team.c.dog_kennel).label("team_dog"))
+    r = r.add_columns((res.c.mistakes*5 + res.c.refusals*5).label("penalty"))
+    r = r.add_columns(((res.c.time - time)*(res.c.time > time)).label("time_penalty"))
+    r = r.add_columns(((res.c.time - time)*(res.c.time > time) + res.c.mistakes*5 + res.c.refusals*5).label("total_penalty"))
+    r = r.add_columns(func.ifnull(run.length/res.c.time, 0).label('speed'))
+
+
+    disq = (res.c.time > max_time) | (res.c.disqualified) | (res.c.refusals >= 3)
+    if include_absent:
+      disq = disq | (res.c.time == 0)
+    r = r.add_columns(disq.label("disq"))
+
+    r = r.filter((func.ifnull(sort.c.value, 1) != 3) & ((res.c.time > 0) | 'disq'))
+    r = r.order_by("disq, total_penalty, penalty, result_time")
+
+    return r, {'team': team, 'result': res, 'sort': sort}
   else:
-    r = r.add_entity(Result, alias=res)
-    r = r.add_entity(Sort, alias=sort)
-    r = r.outerjoin(res).outerjoin(sort)
-  r = r.add_columns((team.c.handler_name + ' ' + team.c.handler_surname).label("team_handler"))
-  r = r.add_columns((team.c.dog_name + ' ' + team.c.dog_kennel).label("team_dog"))
-  r = r.add_columns((res.c.mistakes*5 + res.c.refusals*5).label("penalty"))
-  r = r.add_columns(((res.c.time - time)*(res.c.time > time)).label("time_penalty"))
-  r = r.add_columns(((res.c.time - time)*(res.c.time > time) + res.c.mistakes*5 + res.c.refusals*5).label("total_penalty"))
-  r = r.add_columns(func.ifnull(run.length/res.c.time, 0).label('speed'))
+    return None, None
 
+def GetResults(run_id):
+  run = Run.get_by(id=run_id)
+  if run:
+    query, aliases = ResultQuery(run_id)
+    rows = session.execute(query).fetchall()
 
-  disq = (res.c.time > max_time) | (res.c.disqualified) | (res.c.refusals >= 3)
-  if includeAbsent:
-    disq = disq | (res.c.time == 0)
-  r = r.add_columns(disq.label("disq"))
-
-  r = r.filter((func.ifnull(sort.c.value, 1) != 3) & ((res.c.time > 0) | 'disq'))
-  r = r.order_by("disq, total_penalty, penalty, result_time")
-
-  return r, {'team': team, 'result': res, 'sort': sort}
-
-def GetResults(run):
-
-  query, aliases = ResultQuery(run)
-  rows = session.execute(query).fetchall()
-
-  num = 0
-  lastorder = ()
-  result = []
-  for r in rows:
-    r = dict(zip(r.keys(), r.values()))
-    order = (r['total_penalty'], r['penalty'], r['result_time'])
-    if order != lastorder:
-      num += 1
-    lastorder = order
-    if not r['disq'] and r['penalty'] < 26:
-      if r['penalty'] < 16:
-        if r['penalty'] < 6:
-					r['rating'] = "V"
+    num = 0
+    lastorder = ()
+    result = []
+    for r in rows:
+      r = dict(zip(r.keys(), r.values()))
+      order = (r['total_penalty'], r['penalty'], r['result_time'])
+      if order != lastorder:
+        num += 1
+      lastorder = order
+      if not r['disq'] and r['penalty'] < 26:
+        if r['penalty'] < 16:
+          if r['penalty'] < 6:
+            r['rating'] = "V"
+          else:
+            r['rating'] = "VD"
         else:
-					r['rating'] = "VD"
+          r['rating'] = "D"
       else:
-        r['rating'] = "D"
-    else:
-      r['rating'] = "BO"
+        r['rating'] = "BO"
 
-    if r['disq']:
-      r['rank'] = 0
-    else:
-      r['rank'] = num
-    result.append(r)
+      if r['disq']:
+        r['rank'] = 0
+      else:
+        r['rank'] = num
+      result.append(r)
 
-  return result
+    return result
+  else:
+    return []
 
 def GetSums(runs):
   if runs:
     team = alias(select([Team.table], Team.table.c.present==1), alias="team")
+    breed = alias(select([Breed.table]), alias="breed")
     r = session.query()
     r = r.add_entity(Team, alias=team)
+    r = r.outerjoin(breed)
+    r = r.add_entity(Breed, alias=breed)
     pen = []
     time_pen = []
     time = []
@@ -453,10 +615,11 @@ def GetSums(runs):
     ran = []
     lengths = 0
 
-    for run in runs:
-      run_time, run_max_time = GetRunTimes(run)
-      res = alias(select([Result.table], Result.table.c.run_id==run.id))
-      sort = alias(select([Sort.table], Sort.table.c.run_id==run.id))
+    for run_id in runs:
+      run = Run.get_by(id=run_id)
+      run_time, run_max_time = ServerCache().Get(('run_times', run_id), lambda: GetRunTimes(run_id))
+      res = alias(select([Result.table], Result.table.c.run_id==run_id))
+      sort = alias(select([Sort.table], Sort.table.c.run_id==run_id))
       pen.append(res.c.mistakes*5 + res.c.refusals*5)
       time_pen.append((res.c.time - run_time)*(res.c.time > run_time))
       time.append(res.c.time)
@@ -496,3 +659,20 @@ def GetSums(runs):
     sums = []
 
   return sums
+
+def CsvImport():
+  def unicode_csv_reader():
+    def utf_8_encoder(unicode_csv_data):
+      for line in unicode_csv_data:
+        yield line.encode('utf-8')
+
+    csv_reader = csv.reader(utf_8_encoder(codecs.open('registration.csv', 'rb', 'utf-8')), delimiter=',', quotechar='"')
+    for row in csv_reader:
+      yield [unicode(cell, 'utf-8') for cell in row]
+
+  for r in unicode_csv_reader():
+    if r[9] != u'category':
+      t = Team(number=r[0], handler_name=r[1], handler_surname=r[2], dog_name=r[3], dog_kennel=r[4], size=GetFormatter("size").coerce(r[6]), osa=r[7], category=GetFormatter("category").coerce(r[9]))
+      t.SetBreed(r[5])
+  session.commit()
+

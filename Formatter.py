@@ -6,16 +6,16 @@ from functools import partial
 
 def GetFormatter(name):
   enums = {
-    'size': ("S","M","L"),
-    'start_sort': ("", "Z", "K", "N"),
-    'category': ("A1","A2","A3",'V'),
-    'run_variant': (u"Zkoušky", u"Open"),
-    'run_time_calc': (u"Ruční", u"Podle času nejlepšího"),
-    'yes_no': ("Ne", "Ano"),
-    'disqualified': ("", "DIS")
+      'size': {0: "S",1:"M",2:"L"},
+      'start_sort': {0:"", 1:"Z", 2:"K", 3:"N"},
+      'category': {0:"A1",1:"A2",2:"A3",3:'V'},
+      'run_variant': {0:u"Zkoušky", 1:u"Open"},
+      'run_time_calc': {0:u"Ruční", 1:u"Podle času nejlepšího"},
+      'yes_no': {0:"Ne", 1:"Ano"},
+      'disqualified': {0:"", 1:"DIS"}
     }
 
-  return EnumFormatter(EnumType(*enums[name]), False)
+  return EnumFormatter(EnumType(enums[name]), False)
 
 
 def FormatPartial(attr, formatter):
@@ -132,6 +132,8 @@ class EnumFormatter( Formatter ):
 
     def coerce( self, value ):
         """Convert a string from the UI into a storable value."""
+        if not self.validate(value):
+          print value
         if value == "":
           return None
         else:

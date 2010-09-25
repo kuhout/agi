@@ -22,7 +22,7 @@
 
 import wx
 
-class ObjectAttrValidator( wx.PyValidator ):
+class ObjectAttrValidator(wx.PyValidator):
   """
   Base class for validators that validate *attributes* of
   objects and provide two-way data transfer between those
@@ -34,9 +34,9 @@ class ObjectAttrValidator( wx.PyValidator ):
   to subclasses.
   
   Subclasses must implement the following methods:
-    * _setControlValue( self, value )
+    * _setControlValue(self, value)
         Set the value of control to the value provided.
-    * _getControlValue( self )
+    * _getControlValue(self)
         Return the value of control.
   Remaining logic is implemented in ObjectAttrValidator.
   
@@ -52,16 +52,16 @@ class ObjectAttrValidator( wx.PyValidator ):
   in a list self._fieldWidgets, the editor class could
   implement the following methods:
     
-    def SetObject( self, editObject ):
+    def SetObject(self, editObject):
       'Set object for editing.'
       self._editObject = editObject
       self._updateValidators()
       self.TransferDataToWindow()
     
-    def _updateValidators( self ):
+    def _updateValidators(self):
       for wgt in self._fieldWidgets:
         validator = wgt.GetValidator()
-        validator.SetObject( self._editObject )
+        validator.SetObject(self._editObject)
   
   
   FORMATTERS
@@ -72,13 +72,13 @@ class ObjectAttrValidator( wx.PyValidator ):
   storage representation.
   
   A Formatter must provide the following interface methods:
-    * format( stored_value )
+    * format(stored_value)
         Format a value for presentation.
-    * coerce( presentation_value )
+    * coerce(presentation_value)
         Convert a presentation-formatted value
         to a storage-formatted value (may include
         type conversion such as string->integer).
-    * validate( presentation_value )
+    * validate(presentation_value)
         Validate a presentation-formatted value.
         Return True if valid or False if invalid.
   
@@ -91,7 +91,7 @@ class ObjectAttrValidator( wx.PyValidator ):
   validation and conversion of the input value.
   """
   
-  def __init__( self, obj, attrName, formatter=None, flRequired=True, validationCB=None ):
+  def __init__(self, obj, attrName, formatter=None, flRequired=True, validationCB=None):
     super(ObjectAttrValidator,self).__init__()
     
     self.obj          = obj
@@ -101,15 +101,15 @@ class ObjectAttrValidator( wx.PyValidator ):
     self.validationCB = validationCB
   
   
-  def Clone( self ):
+  def Clone(self):
     """
     Return a new validator for the same field of the same object.
     """
-    return self.__class__( self.obj, self.attrName, self.formatter,
-        self.flRequired, self.validationCB )
+    return self.__class__(self.obj, self.attrName, self.formatter,
+        self.flRequired, self.validationCB)
   
   
-  def SetObject( self, obj ):
+  def SetObject(self, obj):
     """
     Set or change the object with which the validator interacts.
     
@@ -119,7 +119,7 @@ class ObjectAttrValidator( wx.PyValidator ):
     self.obj = obj
   
   
-  def TransferToWindow( self ):
+  def TransferToWindow(self):
     """
     Transfer data from validator to window.
     
@@ -128,20 +128,20 @@ class ObjectAttrValidator( wx.PyValidator ):
     """
     if self.obj:
       # Copy object attribute value to widget
-      val = self._munge( self.obj, self.attrName )
+      val = self._munge(self.obj, self.attrName)
       if val == None:
         val = ''
       if self.formatter:
-        val = self.formatter.format( val )
+        val = self.formatter.format(val)
     else:
       val = None
 
-    self._setControlValue( val )
+    self._setControlValue(val)
     
     return True
   
   
-  def TransferFromWindow( self ):
+  def TransferFromWindow(self):
     """
     Transfer data from window to validator.
     
@@ -159,18 +159,18 @@ class ObjectAttrValidator( wx.PyValidator ):
     
     # Check widget value against attribute value; only copy if changed
     # Get object attribute value
-    oldVal = self._munge( self.obj, self.attrName )
+    oldVal = self._munge(self.obj, self.attrName)
     if self.formatter:
-      oldVal = self.formatter.format( oldVal )
+      oldVal = self.formatter.format(oldVal)
     if val != oldVal:
       if self.formatter:
-        val = self.formatter.coerce( val )
-      self._mungeSet( self.obj, val, self.attrName )
+        val = self.formatter.coerce(val)
+      self._mungeSet(self.obj, val, self.attrName)
     
     return True
   
   
-  def Validate( self, win ):
+  def Validate(self, win):
     """
     Validate the contents of the given control.
     
@@ -181,9 +181,9 @@ class ObjectAttrValidator( wx.PyValidator ):
     if self.flRequired and val == '':
       flValid = False
     if flValid and self.formatter:
-      flValid = self.formatter.validate( val )
+      flValid = self.formatter.validate(val)
     if self.validationCB:
-      self.validationCB( self.obj, self.attrName, val, self.flRequired, flValid )
+      self.validationCB(self.obj, self.attrName, val, self.flRequired, flValid)
     return flValid
   
   def _munge(self, modelObject, munger):
@@ -262,7 +262,7 @@ class ObjectAttrValidator( wx.PyValidator ):
       except:
           pass
 
-  def _setControlValue( self, value ):
+  def _setControlValue(self, value):
     """
     Set the value of the target control.
     
@@ -271,7 +271,7 @@ class ObjectAttrValidator( wx.PyValidator ):
     raise NotImplementedError, 'Subclass must implement _setControlValue'
   
   
-  def _getControlValue( self ):
+  def _getControlValue(self):
     """
     Return the value from the target control.
     
@@ -280,16 +280,16 @@ class ObjectAttrValidator( wx.PyValidator ):
     raise NotImplementedError, 'Subclass must implement _getControlValue'
 
 
-class ObjectAttrTextValidator( ObjectAttrValidator ):
+class ObjectAttrTextValidator(ObjectAttrValidator):
   """
   Validator for TextCtrl widgets.
   """
-  def __init__( self, *args, **kwargs ):
+  def __init__(self, *args, **kwargs):
     """ Standard constructor. """
-    super(ObjectAttrTextValidator,self).__init__( *args, **kwargs )
+    super(ObjectAttrTextValidator,self).__init__(*args, **kwargs)
   
   
-  def TransferToWindow( self ):
+  def TransferToWindow(self):
     """
     Transfer data from validator to window.
     
@@ -306,15 +306,15 @@ class ObjectAttrTextValidator( ObjectAttrValidator ):
     return super(ObjectAttrTextValidator,self).TransferToWindow()
   
   
-  def _setControlValue( self, value ):
+  def _setControlValue(self, value):
     """
     Set the value of the TextCtrl.
     """
     wgt = self.GetWindow()
-    wgt.SetValue( value )
+    wgt.SetValue(value)
   
   
-  def _getControlValue( self ):
+  def _getControlValue(self):
     """
     Return the value from the TextCtrl.
     """
@@ -322,26 +322,26 @@ class ObjectAttrTextValidator( ObjectAttrValidator ):
     return wgt.GetValue()
 
 
-class ObjectAttrSelectorValidator( ObjectAttrValidator ):
+class ObjectAttrSelectorValidator(ObjectAttrValidator):
   """
   Validator for ControlWithItems widgets (ListBox, Choice).
   
   For wx.ListBox, assumes single-selection mode (wx.LB_SINGLE).
   """
-  def __init__( self, obj, attrName, formatter, *args, **kwargs ):
+  def __init__(self, obj, attrName, formatter, *args, **kwargs):
     """ Standard constructor. """
     super(ObjectAttrSelectorValidator,self).__init__(
-        obj, attrName, formatter, *args, **kwargs )
+        obj, attrName, formatter, *args, **kwargs)
   
   
-  def _getFieldOptions( self, name ):
+  def _getFieldOptions(self, name):
     """
     Return list of (id,label) pairs.
     """
     return self.formatter.validValues()
   
   
-  def _setControlValue( self, value ):
+  def _setControlValue(self, value):
     """
     Set the value *and the options* of the control.
     By the time this is called, the value is already mapped for display.
@@ -349,18 +349,17 @@ class ObjectAttrSelectorValidator( ObjectAttrValidator ):
     wgt = self.GetWindow()
     
     # Get options (list of (id,value) pairs)
-    options = self._getFieldOptions( self.attrName )
+    options = self._getFieldOptions(self.attrName)
     # Replace selector contents
     wgt.Clear()
     for id, label in options:
-      wgt.Append( label, id )
-    
+      wgt.Append(label, id)
     # Set selection
     if value:
-      wgt.SetStringSelection( value )
+      wgt.SetStringSelection(value)
   
   
-  def _getControlValue( self ):
+  def _getControlValue(self):
     """
     Return the value from the TextCtrl.
     """
@@ -368,26 +367,26 @@ class ObjectAttrSelectorValidator( ObjectAttrValidator ):
     return wgt.GetStringSelection()
 
 
-class ObjectAttrCheckListBoxValidator( ObjectAttrValidator ):
+class ObjectAttrCheckListBoxValidator(ObjectAttrValidator):
   """
   Validator for CheckListBox widgets.
   """
-  def __init__( self, obj, attrName, formatter, *args, **kwargs ):
+  def __init__(self, obj, attrName, formatter, *args, **kwargs):
     """ Standard constructor. """
     super(ObjectAttrCheckListBoxValidator,self).__init__(
-        obj, attrName, formatter, *args, **kwargs )
+        obj, attrName, formatter, *args, **kwargs)
   
   
   ########## REQUIRED INTERFACE ##########
   
-  def _getFieldOptions( self, name ):
+  def _getFieldOptions(self, name):
     """
     Return list of (id,label) pairs.
     """
     return self.formatter.validValues()
   
   
-  def _setControlValue( self, value ):
+  def _setControlValue(self, value):
     """
     Set the value *and the options* of the control.
     By the time this is called, the value is already mapped for display.
@@ -397,19 +396,19 @@ class ObjectAttrCheckListBoxValidator( ObjectAttrValidator ):
     wgt = self.GetWindow()
     
     # Get options (list of (id,value) pairs)
-    options = self._getFieldOptions( self.attrName )
+    options = self._getFieldOptions(self.attrName)
     # Sort alphabetically
     options = [ (opt[1], opt) for opt in options ]
     options.sort()
     options = [ opt[1] for opt in options ]
     # Replace selector contents
-    self._setControlOptions( options )
+    self._setControlOptions(options)
     
     # Set selection
-    wgt._setControlSelections( value )
+    wgt._setControlSelections(value)
   
   
-  def _getControlValue( self ):
+  def _getControlValue(self):
     """
     Return the value from the TextCtrl.
     
@@ -417,14 +416,14 @@ class ObjectAttrCheckListBoxValidator( ObjectAttrValidator ):
     """
     wgt = self.GetWindow()
     selections = wgt.GetStringSelections()
-    value = [ wgt.GetClientData( idx ) for idx in selections ]
+    value = [ wgt.GetClientData(idx) for idx in selections ]
     return value
   
   
   ########## END REQUIRED INTERFACE ##########
   
   
-  def _setControlOptions( self, options ):
+  def _setControlOptions(self, options):
     """
     Set up or update control options.
     
@@ -433,10 +432,10 @@ class ObjectAttrCheckListBoxValidator( ObjectAttrValidator ):
     wgt = self.GetWindow()
     wgt.Clear()
     for id, label in options:
-      wgt.Append( label, id )
+      wgt.Append(label, id)
   
   
-  def _setControlSelections( self, value ):
+  def _setControlSelections(self, value):
     """
     Select the specified items in the control, and unselect others.
     
@@ -452,39 +451,39 @@ class ObjectAttrCheckListBoxValidator( ObjectAttrValidator ):
     if value == None:
       value = tuple()
     elif not isinstance(value,(list,tuple)):
-      value = ( value, )
+      value = (value,)
     
     numItems = wgt.GetCount()
-    for idx in xrange( 0, numItems ):
-      itemData = wgt.GetClientData( idx )
+    for idx in xrange(0, numItems):
+      itemData = wgt.GetClientData(idx)
       if itemData in value:
-        if not wgt.IsChecked( idx ):
-          wgt.Check( idx, True )
+        if not wgt.IsChecked(idx):
+          wgt.Check(idx, True)
       else:
-        if wgt.IsChecked( idx ):
-          wgt.Check( idx, False )
+        if wgt.IsChecked(idx):
+          wgt.Check(idx, False)
 
 
-class ObjectAttrRadioBoxValidator( ObjectAttrValidator ):
+class ObjectAttrRadioBoxValidator(ObjectAttrValidator):
   """
   Validator for RadioBox widgets.
   """
-  def __init__( self, obj, attrName, formatter, *args, **kwargs ):
+  def __init__(self, obj, attrName, formatter, *args, **kwargs):
     """ Standard constructor. """
     super(ObjectAttrRadioBoxValidator,self).__init__(
-        obj, attrName, formatter, *args, **kwargs )
+        obj, attrName, formatter, *args, **kwargs)
   
   
-  def _setControlValue( self, value ):
+  def _setControlValue(self, value):
     """
     Set the value *and the options* of the control.
     By the time this is called, the value is already mapped for display.
     """
     wgt = self.GetWindow()
-    wgt.SetStringSelection( value )
+    wgt.SetStringSelection(value)
   
   
-  def _getControlValue( self ):
+  def _getControlValue(self):
     """
     Return the value from the TextCtrl.
     """
@@ -492,16 +491,16 @@ class ObjectAttrRadioBoxValidator( ObjectAttrValidator ):
     return wgt.GetStringSelection()
 
 
-class ObjectAttrLabelValidator( ObjectAttrValidator ):
+class ObjectAttrLabelValidator(ObjectAttrValidator):
   """
   Validator for StaticText widgets.
   """
-  def __init__( self, *args, **kwargs ):
+  def __init__(self, *args, **kwargs):
     """ Standard constructor. """
-    super(ObjectAttrLabelValidator,self).__init__( *args, **kwargs )
+    super(ObjectAttrLabelValidator,self).__init__(*args, **kwargs)
   
   
-  def TransferToWindow( self ):
+  def TransferToWindow(self):
     """
     Transfer data from validator to window.
     
@@ -518,15 +517,15 @@ class ObjectAttrLabelValidator( ObjectAttrValidator ):
     return super(ObjectAttrLabelValidator,self).TransferToWindow()
   
   
-  def _setControlValue( self, value ):
+  def _setControlValue(self, value):
     """
     Set the value of the TextCtrl.
     """
     wgt = self.GetWindow()
-    wgt.SetLabel( value )
+    wgt.SetLabel(value)
   
   
-  def _getControlValue( self ):
+  def _getControlValue(self):
     """
     Return the value from the TextCtrl.
     """
@@ -534,17 +533,17 @@ class ObjectAttrLabelValidator( ObjectAttrValidator ):
     return wgt.GetLabel()
 
 
-class ObjectAttrCheckBoxValidator( ObjectAttrValidator ):
+class ObjectAttrCheckBoxValidator(ObjectAttrValidator):
   """
   Validator for CheckBox widgets.
   """
-  def __init__( self, obj, attrName, formatter, *args, **kwargs ):
+  def __init__(self, obj, attrName, formatter, *args, **kwargs):
     """ Standard constructor. """
     super(ObjectAttrCheckBoxValidator,self).__init__(
-        obj, attrName, formatter, *args, **kwargs )
+        obj, attrName, formatter, *args, **kwargs)
   
   
-  def _setControlValue( self, value ):
+  def _setControlValue(self, value):
     """
     Set the value *and the options* of the control.
     By the time this is called, the value is already mapped for display.
@@ -554,23 +553,23 @@ class ObjectAttrCheckBoxValidator( ObjectAttrValidator ):
       value = False
     wgt.SetValue(value)
     
-  def _getControlValue( self ):
+  def _getControlValue(self):
     """
     Return the value from the TextCtrl.
     """
     wgt = self.GetWindow()
     return wgt.GetValue()
 
-class ObjectAttrSpinValidator( ObjectAttrValidator ):
+class ObjectAttrSpinValidator(ObjectAttrValidator):
   """
   Validator for SpinCtrl widgets.
   """
-  def __init__( self, *args, **kwargs ):
+  def __init__(self, *args, **kwargs):
     """ Standard constructor. """
-    super(ObjectAttrSpinValidator,self).__init__( *args, **kwargs )
+    super(ObjectAttrSpinValidator,self).__init__(*args, **kwargs)
   
   
-  def TransferToWindow( self ):
+  def TransferToWindow(self):
     """
     Transfer data from validator to window.
     
@@ -587,15 +586,15 @@ class ObjectAttrSpinValidator( ObjectAttrValidator ):
     return super(ObjectAttrSpinValidator,self).TransferToWindow()
   
   
-  def _setControlValue( self, value ):
+  def _setControlValue(self, value):
     """
     Set the value of the SpinCtrl.
     """
     wgt = self.GetWindow()
-    wgt.SetValue( int(value) )
+    wgt.SetValue(int(value))
   
   
-  def _getControlValue( self ):
+  def _getControlValue(self):
     """
     Return the value from the SpinCtrl.
     """
@@ -603,24 +602,24 @@ class ObjectAttrSpinValidator( ObjectAttrValidator ):
     return wgt.GetValue()
 
 
-class ObjectAttrComboValidator( ObjectAttrValidator ):
+class ObjectAttrComboValidator(ObjectAttrValidator):
   """
   Validator for ComboBox widgets
   """
-  def __init__( self, obj, attrName, formatter, *args, **kwargs ):
+  def __init__(self, obj, attrName, formatter, *args, **kwargs):
     """ Standard constructor. """
     super(ObjectAttrComboValidator,self).__init__(
-        obj, attrName, formatter, *args, **kwargs )
+        obj, attrName, formatter, *args, **kwargs)
 
 
-  def _getFieldOptions( self, name ):
+  def _getFieldOptions(self, name):
     """
     Return list of (id,label) pairs.
     """
     return self.formatter.values()
 
 
-  def _setControlValue( self, value ):
+  def _setControlValue(self, value):
     """
     Set the value *and the options* of the control.
     By the time this is called, the value is already mapped for display.
@@ -628,20 +627,54 @@ class ObjectAttrComboValidator( ObjectAttrValidator ):
     wgt = self.GetWindow()
 
     # Get options (list of (id,value) pairs)
-    options = self._getFieldOptions( self.attrName )
+    options = self._getFieldOptions(self.attrName)
     # Replace combo contents
     wgt.Clear()
     for label in options:
-      wgt.Append( label )
+      wgt.Append(label)
 
     # Set selection
-    wgt.SetValue( value )
+    wgt.SetValue(value)
 
 
-  def _getControlValue( self ):
+  def _getControlValue(self):
     """
     Return the value from the TextCtrl.
     """
     wgt = self.GetWindow()
     return wgt.GetValue()
+
+class ObjectAttrOLVValidator(ObjectAttrValidator):
+  """
+  Validator for OLVs
+  """
+  def __init__(self, obj, attrName, formatter, attribute, *args, **kwargs):
+    """ Standard constructor. """
+    super(ObjectAttrOLVValidator,self).__init__(
+        obj, attrName, formatter, *args, **kwargs)
+
+
+  def _setControlValue(self, value):
+    """
+    Set the value of the control. This assumes it is already populated.
+    By the time this is called, the value is already mapped for display.
+    """
+    wgt = self.GetWindow()
+
+    wgt.DeselectAll()
+
+    for o in wgt.GetObjects():
+      if o["id"] == value:
+        wgt.SelectObject(o)
+
+  def _getControlValue(self):
+    """
+    Return the value from the currently selected object in the OLV.
+    """
+    wgt = self.GetWindow()
+    selected = wgt.GetSelectedObject()
+    if selected:
+      return selected["id"]
+    else:
+      return None
 
