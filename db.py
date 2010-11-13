@@ -32,6 +32,7 @@ class Team(Entity):
   size = Field(Integer, default=0)
   present = Field(Integer, default=0)
   paid = Field(Unicode(50), default=u"")
+  def_sort = Field(Integer, default=0)
   results = OneToMany('Result')
   sorts = OneToMany('Sort')
 
@@ -80,7 +81,7 @@ class Run(Entity):
   id = Field(Integer, autoincrement=True, unique=True, primary_key=True, index=True)
   name = Field(Unicode(50), default=u"")
   date = Field(Unicode(50), default=u"")
-  category = Field(Integer, default=0)
+  category = Field(Integer, default=None)
   size = Field(Integer, default=0)
   variant = Field(Integer, default=0)
   time_calc = Field(Integer, default=0)
@@ -166,7 +167,7 @@ class ServerCache():
     self.lock.release()
     return inv
 
-def Update(classname, values, *args, **kwargs):
+def Update(classname, values, extraParams={}, *args, **kwargs):
   id = values['id']
   del values['id']
   c = globals()[classname.capitalize()]
@@ -192,10 +193,11 @@ def Update(classname, values, *args, **kwargs):
   if classname == 'result':
     return ServerCache().InvalidateRun(obj.run_id, except_runs=True)
   if classname == 'run':
+    if "generate_runs" in extraParams:
+      GenerateRuns(obj)
     return ServerCache().InvalidateRun(obj.id)
   if classname == 'sort':
-    i = [('start_list', obj.run_id), ('start_list_with_removed', obj.run_id), ('runs', None)]
-    return ServerCache().Invalidate(i)
+    return ServerCache().InvalidateRun(obj.run_id)
   if classname == 'team':
     return ServerCache().InvalidateAll(exc=[('runs', None)])
 
@@ -207,6 +209,29 @@ def Create(classname):
   if classname == 'run':
     r['breeds'] = []
   return r
+
+def GenerateRuns(run):
+  def clone(a,b):
+    for c in a.table.c:
+      if not c.name.endswith('id'):
+        setattr(b, c.name, getattr(a, c.name))
+
+  sizes = [0,1,2]
+  if run.variant == 1:
+    categories = [None]
+  else:
+    categories = [0,1,2]
+
+  for s in sizes:
+    for c in categories:
+      if not (run.category == c and run.size == s):
+        n = Run()
+        clone(run, n)
+        n.category = c
+        n.size = s
+
+  session.commit()
+  return True
 
 def GetTeams():
   res = []
@@ -231,7 +256,6 @@ def GetRuns():
     for b in BreedFilter.query.filter_by(run_id=r.id).all():
       d['breeds'].append(b.breed_id)
     res.append(d)
-    print d
   return res
 
 def OpenFile(filename):
@@ -354,12 +378,13 @@ def GetStartList(run_id, includeRemoved=False):
       #beginning, end, start number
       order = [func.ifnull(sort.value, 0) != 1, func.ifnull(sort.value, 0) == 2, Team.table.c.start_num]
 
+    s = ((func.ifnull(sort.value, 0) == 0) & (Team.table.c.def_sort == 1)) | ((func.ifnull(sort.value, 0) == 3) & (Team.table.c.def_sort == 0))
     if includeRemoved:
       #put removed teams at the end
-      order.insert(0, func.ifnull(sort.value, 0) == 3)
+      order.insert(0, s)
     else:
       #or don't get them at all
-      query = query.filter(func.ifnull(sort.value, 1) != 3)
+      query = query.filter(s != 1)
 
     query = query.add_entity(sq).add_entity(sort).outerjoin(sq).outerjoin(sort).add_entity(Breed).outerjoin(Breed.table).order_by(*order)
     query = query.all()
@@ -381,6 +406,9 @@ def GetStartList(run_id, includeRemoved=False):
       team['result'] = res.to_dict()
       team['sort'] = sort.to_dict()
       team['breed'] = t[3].to_dict()
+      if team['def_sort']:
+        #def_sorts of one get special sorting messages, see enum definitons
+        team['sort']['value'] += 4
       result.append(team)
 
     if new_entries:
@@ -556,7 +584,8 @@ def ResultQuery(run_id, max_time=None, time=None, include_absent=False, results_
       disq = disq | (res.c.time == 0)
     r = r.add_columns(disq.label("disq"))
 
-    r = r.filter((func.ifnull(sort.c.value, 1) != 3) & ((res.c.time > 0) | 'disq'))
+    s = ((func.ifnull(sort.c.value, 0) == 0) & (team.c.def_sort == 1)) | ((func.ifnull(sort.c.value, 0) == 3) & (team.c.def_sort == 0))
+    r = r.filter((s != 1) & ((res.c.time > 0) | 'disq'))
     r = r.order_by("disq, total_penalty, penalty, result_time")
 
     return r, {'team': team, 'result': res, 'sort': sort}
@@ -578,9 +607,9 @@ def GetResults(run_id):
       if order != lastorder:
         num += 1
       lastorder = order
-      if not r['disq'] and r['penalty'] < 26:
-        if r['penalty'] < 16:
-          if r['penalty'] < 6:
+      if not r['disq'] and r['total_penalty'] < 26:
+        if r['total_penalty'] < 16:
+          if r['total_penalty'] < 6:
             r['rating'] = "V"
           else:
             r['rating'] = "VD"
@@ -623,7 +652,8 @@ def GetSums(runs):
       pen.append(res.c.mistakes*5 + res.c.refusals*5)
       time_pen.append((res.c.time - run_time)*(res.c.time > run_time))
       time.append(res.c.time)
-      sorts.append(func.ifnull(sort.c.value, 0))
+      s = ((func.ifnull(sort.c.value, 0) == 0) & (team.c.def_sort == 1)) | ((func.ifnull(sort.c.value, 0) == 3) & (team.c.def_sort == 0))
+      sorts.append(s)
       lengths = lengths + run.length
       dis = ((res.c.time > run_max_time) | (res.c.disqualified) | (res.c.refusals >= 3))
       disq.append(dis)
@@ -643,7 +673,7 @@ def GetSums(runs):
     r = r.add_columns(result_time)
     r = r.add_columns(func.ifnull(lengths/result_time, 0).label("speed"))
 
-    r = r.filter("sort < 3 AND ran_all == %d" % len(runs))
+    r = r.filter("sort == 0 AND ran_all == %d" % len(runs))
     r = r.order_by("disq, total_penalty, penalty, result_time")
 
     rows = session.execute(r).fetchall()
@@ -660,19 +690,11 @@ def GetSums(runs):
 
   return sums
 
-def CsvImport():
-  def unicode_csv_reader():
-    def utf_8_encoder(unicode_csv_data):
-      for line in unicode_csv_data:
-        yield line.encode('utf-8')
-
-    csv_reader = csv.reader(utf_8_encoder(codecs.open('registration.csv', 'rb', 'utf-8')), delimiter=',', quotechar='"')
-    for row in csv_reader:
-      yield [unicode(cell, 'utf-8') for cell in row]
-
-  for r in unicode_csv_reader():
-    if r[9] != u'category':
-      t = Team(number=r[0], handler_name=r[1], handler_surname=r[2], dog_name=r[3], dog_kennel=r[4], size=GetFormatter("size").coerce(r[6]), osa=r[7], category=GetFormatter("category").coerce(r[9]))
-      t.SetBreed(r[5])
+def ImportTeams(data):
+  for r in data:
+    print r
+    t = Team(number=r[0], handler_name=r[1], handler_surname=r[2], dog_name=r[3], dog_kennel=r[4], size=GetFormatter("size").coerce(r[6]), osa=r[7], dog_nick=r[9], category=GetFormatter("category").coerce(r[10]))
+    t.SetBreed(r[5])
   session.commit()
+  return ServerCache().InvalidateAll(exc=[('runs', None)])
 

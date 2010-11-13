@@ -7,7 +7,7 @@ from functools import partial
 def GetFormatter(name):
   enums = {
       'size': {0: "S",1:"M",2:"L"},
-      'start_sort': {0:"", 1:"Z", 2:"K", 3:"N"},
+      'start_sort': {0:"", 1:"Začátek", 2:"Konec", 3:"Vyřazen", 4:"Standardně vyřazen", 5:"Výjimka, začátek", 6:"Výjimka, konec", 7:"Výjimka"},
       'category': {0:"A1",1:"A2",2:"A3",3:'V'},
       'run_variant': {0:u"Zkoušky", 1:u"Open"},
       'run_time_calc': {0:u"Ruční", 1:u"Podle času nejlepšího"},

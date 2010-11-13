@@ -33,6 +33,15 @@
 								<content />
 							</object>
 						</object>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+							<border>5</border>
+							<object class="wxStaticText" name="runInfo">
+								<label></label>
+								<wrap>-1</wrap>
+							</object>
+						</object>
 						<object class="spacer">
 							<option>2</option>
 							<flag>wxEXPAND</flag>
@@ -417,6 +426,15 @@
 												<option>0</option>
 												<flag>wxALL</flag>
 												<border>5</border>
+												<object class="wxButton" name="exportResults">
+													<label>Export</label>
+													<default>0</default>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
 												<object class="wxButton" name="printResults">
 													<label>Tisk</label>
 													<default>0</default>
@@ -508,6 +526,10 @@
 			<label>MyMenuBar</label>
 			<object class="wxMenu" name="fileMenu">
 				<label>Soubor</label>
+				<object class="wxMenuItem" name="importTeams">
+					<label>Import týmů z kacr.info</label>
+					<help></help>
+				</object>
 				<object class="wxMenuItem" name="competitionSettings">
 					<label>Parametry závodu</label>
 					<help></help>
@@ -980,11 +1002,11 @@
 								</object>
 								<object class="sizeritem">
 									<option>1</option>
-									<flag>wxEXPAND</flag>
+									<flag>wxALL|wxEXPAND</flag>
 									<border>5</border>
 									<object class="wxStaticBoxSizer">
 										<orient>wxVERTICAL</orient>
-										<label>Omezit plemena</label>
+										<label>Omezení plemen</label>
 										<object class="sizeritem">
 											<option>1</option>
 											<flag>wxALL|wxEXPAND</flag>
@@ -997,10 +1019,19 @@
 						</object>
 						<object class="sizeritem">
 							<option>1</option>
-							<flag>wxEXPAND</flag>
+							<flag>wxALL|wxEXPAND</flag>
 							<border>5</border>
 							<object class="wxBoxSizer">
 								<orient>wxVERTICAL</orient>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALL</flag>
+									<border>5</border>
+									<object class="wxCheckBox" name="generateRuns">
+										<label>Vygenerovat běhy ostatních kategorií</label>
+										<checked>0</checked>
+									</object>
+								</object>
 							</object>
 						</object>
 						<object class="sizeritem">
@@ -1468,6 +1499,32 @@
 											<object class="wxTextCtrl" name="paid">
 												<value></value>
 												<maxlength>0</maxlength>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>1</option>
+									<flag>wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxBoxSizer">
+										<orient>wxHORIZONTAL</orient>
+										<object class="sizeritem">
+											<option>3</option>
+											<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="m_staticText11211">
+												<label>Standardně vyřazen:</label>
+												<wrap>-1</wrap>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>5</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxChoice" name="def_sort">
+												<selection>0</selection>
+												<content />
 											</object>
 										</object>
 									</object>

@@ -23,7 +23,7 @@ pdfmetrics.registerFont(TTFont('DejaVuSans-BoldOblique', 'DejaVuSans-BoldOblique
 pdfmetrics.registerFont(TTFont('DejaVuSans-Oblique', 'DejaVuSans-Oblique.ttf'))
 pdfmetrics.registerFontFamily('DejaVuSans',normal='DejaVuSans',bold='DejaVuSans-Bold',italic='DejaVuSans-Oblique',boldItalic='DejaVuSans-BoldOblique')
 
-normalStyle = ParagraphStyle(name='Normal', fontSize=9, fontName='DejaVuSans')
+normalStyle = ParagraphStyle(name='Normal', fontSize=8, fontName='DejaVuSans')
 boldStyle = ParagraphStyle(name='Bold', fontSize=10, fontName='DejaVuSans-Bold')
 normalCenterStyle = ParagraphStyle(name='NormalCenter', fontSize=10, fontName='DejaVuSans', alignment=1)
 headingStyle = ParagraphStyle(name='Heading', fontSize=19, fontName='DejaVuSans-Bold', alignment=1, leading=22, spaceAfter=6)
@@ -34,7 +34,7 @@ def GetTeamsTable(teams):
   style = TableStyle([
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
     ('FONT', (0,0), (-1,-1), "DejaVuSans"),
-    ('FONTSIZE', (0,1), (-1,-1), 9),
+    ('FONTSIZE', (0,1), (-1,-1), 8),
     ('FONT', (0,0), (-1, 0), "DejaVuSans-Bold"),
     ('ALIGN', (0,0), (-1,0), 'CENTER'),
     ('VALIGN', (0,0), (-1,-1), 'TOP'),
@@ -106,7 +106,7 @@ def PrintEntry(data, run):
   style = TableStyle([
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
     ('FONT', (0,0), (-1,-1), "DejaVuSans"),
-    ('FONTSIZE', (0,1), (-1,-1), 9),
+    ('FONTSIZE', (0,1), (-1,-1), 8),
     ('FONT', (0,0), (-1, 0), "DejaVuSans-Bold"),
     ('ALIGN', (0,0), (0,-1), 'CENTER'),
     ('ALIGN', (-3,0), (-1,-1), 'CENTER'),
@@ -153,7 +153,7 @@ def PrintStart(data, run):
   style = TableStyle([
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
     ('FONT', (0,0), (-1,-1), "DejaVuSans"),
-    ('FONTSIZE', (0,1), (-1,-1), 9),
+    ('FONTSIZE', (0,1), (-1,-1), 8),
     ('FONT', (0,0), (-1, 0), "DejaVuSans-Bold"),
     ('ALIGN', (0,0), (-1,0), 'CENTER'),
     ('VALIGN', (0,0), (-1,-1), 'TOP'),
@@ -175,7 +175,7 @@ def GetSquadResultsTable(results):
   style = [
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
     ('FONT', (0,0), (-1,-1), "DejaVuSans"),
-    ('FONTSIZE', (0,1), (-1,-1), 9),
+    ('FONTSIZE', (0,1), (-1,-1), 8),
     ('FONT', (0,0), (-1, 0), "DejaVuSans-Bold"),
     ('ALIGN', (len(headers)-5,1), (len(headers)-1,-1), 'RIGHT'),
     ('ALIGN', (2,1), (4,-1), 'RIGHT'),
@@ -241,7 +241,7 @@ def GetResultsTable(results, run):
   style = [
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
     ('FONT', (0,0), (-1,-1), "DejaVuSans"),
-    ('FONTSIZE', (0,1), (-1,-1), 9),
+    ('FONTSIZE', (0,1), (-1,-1), 8),
     ('FONT', (0,0), (-1, 0), "DejaVuSans-Bold"),
     ('ALIGN', (0,0), (-1,0), 'CENTER'),
     ('ALIGN', (len(headers)-5,1), (len(headers)-1,-1), 'RIGHT'),
@@ -262,9 +262,9 @@ def GetResultsTable(results, run):
     row.append(r['team_handler'])
     row.append(r['team_dog'])
     row.append(r['breed_name'])
-    row.append(r['team_osa'])
     if run['variant'] == 0:
       row.append(GetFormatter("category").format(r['team_category']))
+    row.append(r['team_osa'])
     if r['disq'] == 1:
       for i in range(5):
         row.append("DIS")
@@ -286,7 +286,11 @@ def PrintResults(data, run):
   else:
     results = GetResultsTable(data, run)
 
-  runData = u"Rozhodčí: %s --- Počet překážek: %d --- Standardní čas: %.2f s --- Maximální čas: %.2f s --- Délka: %.2f m --- Rychlost: %.2f m/s" % (run['judge'], run['hurdles'], run['time'], run['max_time'], run['length'], run['length']/run['time'])
+  if run['time']:
+    speed = run['length']/run['time']
+  else:
+    speed = 0
+  runData = u"Rozhodčí: %s --- Počet překážek: %d --- Standardní čas: %.2f s --- Maximální čas: %.2f s --- Délka: %.2f m --- Rychlost: %.2f m/s" % (run['judge'], run['hurdles'], run['time'], run['max_time'], run['length'], speed)
   lst.append(Spacer(1, 0.5*cm))
   lst.append(Paragraph(u"Výsledky", headingStyle))
   lst.append(Paragraph(run['nice_name'], subHeadingStyle))
@@ -301,7 +305,7 @@ def GetSquadSumsTable(sums):
   style = [
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
     ('FONT', (0,0), (-1,-1), "DejaVuSans"),
-    ('FONTSIZE', (0,1), (-1,-1), 9),
+    ('FONTSIZE', (0,1), (-1,-1), 8),
     ('FONT', (0,0), (-1, 0), "DejaVuSans-Bold"),
     ('ALIGN', (0,0), (-1,0), 'CENTER'),
     ('ALIGN', (2,1), (4,-1), 'RIGHT'),
@@ -354,7 +358,7 @@ def GetSumsTable(sums):
   style = TableStyle([
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
     ('FONT', (0,0), (-1,-1), "DejaVuSans"),
-    ('FONTSIZE', (0,1), (-1,-1), 9),
+    ('FONTSIZE', (0,1), (-1,-1), 8),
     ('FONT', (0,0), (-1, 0), "DejaVuSans-Bold"),
     ('ALIGN', (0,0), (-1,0), 'CENTER'),
     ('ALIGN', (6,0), (8,-1), 'RIGHT'),
@@ -417,7 +421,7 @@ class MyTemplate(PageTemplate):
 
   def afterDrawPage(self, canvas, doc):
     canvas.saveState()
-    canvas.setFont("DejaVuSans", 9)
+    canvas.setFont("DejaVuSans", 8)
     canvas.drawString(cm, self.pageHeight - 1*cm, self.params['comp_name'])
     canvas.drawRightString(self.pageWidth - 1*cm, self.pageHeight - 1*cm, self.params['date'])
     canvas.restoreState()

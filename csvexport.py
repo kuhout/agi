@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import db
 import csv, cStringIO, codecs
 from Formatter import *
@@ -41,3 +43,9 @@ def CsvExport():
     w.writerow(["run", r.length, r.judge, time, r.hurdles, r.NiceName(), GetFormatter("size").format(r.size), GetFormatter("category").format(r.category), mtime, r.date, r.length/time, "Spec"])
     for m in db.GetResults(r):
       w.writerow(["res", m['rank'], m["team_handler"], m["team_dog"], m["team_number"], abs(m["result_mistakes"]), abs(m["result_refusals"]), abs(m["result_time"]), abs(m["time_penalty"]), abs(m["total_penalty"]), "", abs(m["speed"])])
+
+def SingleRunExport(filename, data):
+  w = UnicodeWriter(open(filename, "wb"), ",")
+  w.writerow([u"Pořadí", u"Číslo", u"Psovod", u"Pes", u"Chyby", u"Odmítnutí", u"Čas", u"Tr. b. za čas", u"Tr. b.", u"Rychlost"])
+  for r in data:
+    w.writerow(['DIS' if r['disq'] else r['rank'], r['team_start_num'], r["team_handler"], r["team_dog"], r["result_mistakes"], r["result_refusals"], r['result_time'], r["time_penalty"], r["total_penalty"], r["speed"]])

@@ -51,9 +51,6 @@ class ServerProcessProtocol(protocol.ProcessProtocol):
   def connectionMade(self):
     self.transport.closeStdin()
 
-  def errReceived(self, data):
-    print data
-
   def outReceived(self, data):
     """
     This just lets us know that the server started
@@ -122,7 +119,6 @@ class Client(object):
     wx.PostEvent(self.notify, CallbackEvent(finished_callback, result[1]))
 
   def Post(self, what, value, *args, **kwargs):
-    print what, value
     reactor.callFromThread(self._post, what, value, *args, **kwargs)
 
   def _post(self, what, value, *args, **kwargs):
@@ -136,6 +132,9 @@ class Client(object):
 
   def RandomizeStartNums(self):
     reactor.callFromThread(self._callRemote, "randomize_start_nums", [])
+
+  def ImportTeams(self, teams):
+    reactor.callFromThread(self._callRemote, "import_teams", [], teams)
 
   def Create(self, what, finished_callback):
     reactor.callFromThread(self._create, what, finished_callback)
@@ -179,6 +178,10 @@ class ServerResponder(pb.Root):
 
   def remote_randomize_start_nums(self):
     u = db.RandomizeStartNums()
+    self._invalidate_remote_caches(u)
+
+  def remote_import_teams(self, teams):
+    u = db.ImportTeams(teams)
     self._invalidate_remote_caches(u)
 
   def remote_get(self, what, request=None):
@@ -266,37 +269,9 @@ class ServerResponder(pb.Root):
 
 
   def Close(self):
-    print "notifying clients of impeding doom"
     d = defer.Deferred()
     reactor.callLater(0, self._do_closing, d)
     return d
 
   def _do_closing(self, d):
     self._clientCall("close").addCallback(d.callback)
-
-class DBQuery(threading.Thread):
-  def __init__(self, lock, what, call, deferred):
-    self.lock = lock
-    self.what = what
-    self.call = call
-    self.deferred = deferred
-    threading.Thread.__init__(self)
-
-  def run(self):
-    self.lock.acquire()
-    self.lock.release()
-
-class DBUpdate(threading.Thread):
-  def __init__(self, lock, callback, what, values, *args, **kwargs):
-    self.lock = lock
-    self.what = what
-    self.values = values
-    self.args = args
-    self.kwargs = kwargs
-    self.callback = callback
-    threading.Thread.__init__(self)
-
-  def run(self):
-    self.lock.acquire()
-    self.lock.release()
-

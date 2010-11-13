@@ -1,5 +1,4 @@
-﻿#!/usr/bin/python
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 
 import db
 import platform
@@ -9,6 +8,7 @@ import ObjectListView as OLV
 import subprocess
 from MyOLV import MyOLV, ColumnDefn
 from wx import xrc
+from elixir import *
 from pubsub import pub
 from controllers import *
 import stopwatch
@@ -34,6 +34,8 @@ class App(wx.App):
 
     self.twistedThread = network.TwistedThread()
     self.twistedThread.start()
+
+    self.connected = False
 
     self._initOLV()
 
@@ -79,21 +81,22 @@ class App(wx.App):
 
   def OnOpenFile(self, evt):
     filename = self.startupDialog.FindWindowByName("filePicker").GetPath()
-    filename = "neww.agi"
     #port = int(self.startupDialog.FindWindowByName("serverPort").GetValue())
     self.server = network.ServerProcessProtocol(lambda: wx.PostEvent(self, network.CallbackEvent(lambda: self.OnConnect(addr="localhost"))))
-    reactor.callFromThread(reactor.spawnProcess, self.server, "/usr/bin/env", ["/usr/bin/env", "python", "server.py", filename])
+    reactor.callFromThread(reactor.spawnProcess, self.server, "/usr/bin/env", ["/usr/bin/env", "python2", "server.py", filename])
 
   def OnConnected(self, arg = None):
-    self._initLocal()
-    self.startupDialog.EndModal(wx.ID_OK)
-    self.frame.SetSize((900, 600))
-    self.frame.Show()
+    if not self.connected:
+      self._initLocal()
+      self.startupDialog.EndModal(wx.ID_OK)
+      self.frame.SetSize((900, 600))
+      self.connected = True
+      self.frame.Show()
 
   def OnConnect(self, evt = None, addr = None):
     #port = int(port or self.startupDialog.FindWindowByName("clientPort").GetValue())
     addr = addr or self.startupDialog.FindWindowByName("clientAddress").GetValue()
-    reactor.callFromThread(Client().Connect, addr, 8787, self, self.OnConnected)
+    reactor.callFromThread(Client().Connect, addr, 8787, self, lambda: wx.PostEvent(self, network.CallbackEvent(self.OnConnected)))
 
   def _initLocal(self):
     entryPanel = self.frame.FindWindowByName("entryPanel")
@@ -112,6 +115,7 @@ class App(wx.App):
 
     self.frame.Bind(wx.EVT_MENU, self.teamController.OnRandomizeStartNums, id=xrc.XRCID("randomizeStartNums"))
     self.frame.Bind(wx.EVT_MENU, self.settingsController.OnCompetitionSettings, id=xrc.XRCID("competitionSettings"))
+    self.frame.Bind(wx.EVT_MENU, self.teamController.OnImportTeams, id=xrc.XRCID("importTeams"))
     self.frame.Bind(wx.EVT_MENU, self.entryController.OnConnectSimpleStopwatch, id=xrc.XRCID("connectSimpleStopwatch"))
     self.frame.Bind(wx.EVT_MENU, self.entryController.OnConnectAdvancedStopwatch, id=xrc.XRCID("connectAdvancedStopwatch"))
     self.frame.Bind(wx.EVT_CLOSE, self.OnClose)

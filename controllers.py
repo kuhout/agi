@@ -9,6 +9,7 @@ import printing
 import stopwatch
 import csv, codecs
 import locale
+import csvexport
 from pubsub import pub
 from wx import xrc
 from Formatter import *
@@ -41,7 +42,7 @@ class DefaultController:
       evt.Skip()
 
   def _updateValidators(self):
-    for name in self._reactiveWidgets + filter(lambda k: k not in self._reactiveWidgets, self._fieldWidgets.keys()):
+    for name in self._fieldWidgets.keys():
       wgt = self._fieldWidgets[name]
       validator = wgt.GetValidator()
       validator.SetObject(self.obj)
@@ -56,7 +57,7 @@ class DefaultController:
       self._updateValidators()
       self.dialog.ShowModal()
 
-  def SaveActiveObject(self):
+  def SaveActiveObject(self, extraParams={}):
     valid = True
     if self.obj:
       for name, wgt in self._fieldWidgets.items():
@@ -72,7 +73,7 @@ class DefaultController:
         return False
       for name, wgt in self._fieldWidgets.items():
         wgt.GetValidator().TransferFromWindow()
-      Client().Post(self.objName, self.obj)
+      Client().Post(self.objName, self.obj, extraParams=extraParams)
     return True
 
   def OnDeleteObject(self, evt):
@@ -112,7 +113,7 @@ class TeamController(DefaultController):
     self._initList()
     DefaultController.__init__(self, dialog, panel)
 
-    for name in ['number', 'osa', 'handler_name', 'handler_surname', 'dog_name', 'dog_kennel', 'dog_nick', 'category', 'size', 'paid', 'dog_breed_id', 'squad']:
+    for name in ['number', 'osa', 'handler_name', 'handler_surname', 'dog_name', 'dog_kennel', 'dog_nick', 'category', 'size', 'paid', 'dog_breed_id', 'squad', 'def_sort']:
       self._fieldWidgets[name] = self.dialog.FindWindowByName(name)
 
     self.dialog.Bind(wx.EVT_BUTTON, self.OnGetTeamFromWeb, id=xrc.XRCID('getTeamFromWeb'))
@@ -140,6 +141,22 @@ class TeamController(DefaultController):
   def OnRandomizeStartNums(self, evt):
     if wx.MessageBox(u"Zamícháním startovních čísel změníte pořadí startovních listin. Opravdu chcete pokračovat?", "Kontrola", wx.YES_NO) == wx.YES:
       Client().RandomizeStartNums()
+
+  def OnImportTeams(self, evt):
+    def utf_8_encoder(unicode_csv_data):
+      for line in unicode_csv_data:
+        yield line.encode('utf-8')
+
+    dlg = wx.FileDialog(self.panel.GetParent().GetParent(), "Vyberte soubor", "", "", "*.csv", wx.OPEN)
+    if dlg.ShowModal() == wx.ID_OK and dlg.GetPath():
+      filename = dlg.GetPath()
+      teams = []
+      csv_reader = csv.reader(utf_8_encoder(codecs.open(filename, 'rb', 'utf-8')), delimiter=',', quotechar='"')
+      for row in csv_reader:
+        teams.append([unicode(cell, 'utf-8') for cell in row])
+      teams.pop(0)
+      Client().ImportTeams(teams)
+    dlg.Destroy()
 
   def _initList(self):
     self.listView.cellEditMode = ObjectListView.CELLEDIT_NONE
@@ -179,6 +196,8 @@ class TeamController(DefaultController):
     wgt('category').SetValidator(validator)
     validator = OAV.ObjectAttrSelectorValidator(None, 'size', GetFormatter('size'), True)
     wgt('size').SetValidator(validator)
+    validator = OAV.ObjectAttrSelectorValidator(None, 'def_sort', GetFormatter('yes_no'), True)
+    wgt('def_sort').SetValidator(validator)
     #TODO: fix for network
     #validator = OAV.ObjectAttrComboValidator(None, 'squad', ListFromCallableFormatter(db.GetSquads), False)
     validator = OAV.ObjectAttrTextValidator(None, 'squad', None, False)
@@ -195,15 +214,15 @@ class TeamController(DefaultController):
     wx.EndBusyCursor()
     if f.getcode() == 200:
       xml = ET.XML(f.read())
-      self.obj.number = xml.findtext('number')
-      self.obj.handler_name = xml.findtext('handler/first-name')
-      self.obj.handler_surname = xml.findtext('handler/surname')
-      self.obj.dog_name = xml.findtext('dog/name')
-      self.obj.dog_kennel = xml.findtext('dog/kennel')
-      self.obj.dog_breed = xml.findtext('dog/breed/name')
-      self.obj.size = GetFormatter('size').coerce(xml.findtext('dog/size'))
-      self.obj.category = None
-      self.obj.present = 1
+      self.obj['number'] = xml.findtext('number')
+      self.obj['handler_name'] = xml.findtext('handler/first-name')
+      self.obj['handler_surname'] = xml.findtext('handler/surname')
+      self.obj['dog_name'] = xml.findtext('dog/name')
+      self.obj['dog_kennel'] = xml.findtext('dog/kennel')
+      self.obj['dog_breed_id'] = int(xml.findtext('dog/breed/id'))
+      self.obj['size'] = GetFormatter('size').coerce(xml.findtext('dog/size'))
+      self.obj['category'] = None
+      self.obj['present'] = 1
       self._updateValidators()
     else:
       wx.MessageBox("Průkaz nenalezen.\nZkontrolujte, zda jste správně zadali číslo.", "Chyba")
@@ -215,6 +234,7 @@ class RunController(DefaultController):
     self.listView = panel.FindWindowByName("runList")
     self.breedList = dialog.FindWindowByName("breedList")
     self.runChooser = xrc.XRCCTRL(panel.GetParent().GetParent(), "runChooser")
+    self.runInfo = panel.GetParent().GetParent().FindWindowByName("runInfo")
     self.runChooserSelected = None
     DefaultController.__init__(self, dialog, panel)
 
@@ -229,12 +249,16 @@ class RunController(DefaultController):
     self.panel.Bind(wx.EVT_BUTTON, self.OnDeleteObject, id=xrc.XRCID('deleteRun'))
     self.panel.GetParent().GetParent().Bind(wx.EVT_CHOICE, self.OnRunChoice, id=xrc.XRCID('runChooser'))
     self.dialog.Bind(wx.EVT_CHOICE, self.OnDialogTimeCalc, id=xrc.XRCID('time_calc'))
+    self.dialog.Bind(wx.EVT_SHOW, self.OnDialogOpen)
     self.dialog.Bind(wx.EVT_CHOICE, self.OnDialogVariant, id=xrc.XRCID('variant'))
 
     pub.subscribe(self.UpdateRunChooser, "runs")
     pub.subscribe(self.UpdateRunChooser, "everything")
     pub.subscribe(self.UpdateDialogSortList, "runs")
     pub.subscribe(self.UpdateDialogSortList, "everything")
+    pub.subscribe(self.UpdateRunInfo, "run_selection_changed")
+    pub.subscribe(self.UpdateRunInfoWrapper, "run_times")
+    pub.subscribe(self.UpdateRunInfoWrapper, "everything")
     self.UpdateList()
     self.UpdateDialogBreedList()
     self.UpdateRunChooser()
@@ -312,6 +336,18 @@ class RunController(DefaultController):
     validator = OAV.ObjectAttrOLVValidator(None, 'sort_run_id', None, False)
     wgt('sort_run_id').SetValidator(validator)
 
+  def UpdateRunInfoWrapper(self, id = None):
+    self.UpdateRunInfo()
+
+  def UpdateRunInfo(self, run = None):
+    if self.runChooserSelected:
+      Client().Get(("run_times", self.runChooserSelected['id']), self._gotRunTimes)
+    else:
+      self.runInfo.SetLabel("")
+
+  def _gotRunTimes(self, times):
+    self.runInfo.SetLabel("SČ: %.2f, MČ: %.2f" % times)
+
   def UpdateRunChooser(self, id = None):
     Client().Get(("runs", None), self._gotChooserItems)
 
@@ -388,6 +424,23 @@ class RunController(DefaultController):
   def OnDialogOpen(self, evt):
     pass
 
+  def OnEditObject(self, evt):
+    gen = self.dialog.FindWindowByName("generateRuns")
+    gen.SetValue(False)
+    gen.Disable()
+    DefaultController.OnEditObject(self, evt)
+
+  def _gotNewObject(self, obj):
+    self.dialog.FindWindowByName("generateRuns").Enable()
+    DefaultController._gotNewObject(self, obj)
+
+  def OnDialogSave(self, evt):
+    if self.dialog.FindWindowByName("generateRuns").GetValue():
+      p = {"generate_runs":True}
+    else:
+      p = {}
+    if self.SaveActiveObject(p):
+      self.dialog.EndModal(wx.ID_SAVE)
 
 class StartController():
   def __init__(self, dialog=None, panel=None, contextMenu=None):
@@ -443,6 +496,20 @@ class StartController():
       i, w = self.listView.HitTest(evt.GetPosition())
       if i != wx.NOT_FOUND:
         self.listView.Select(i)
+        items = self.contextMenu.GetMenuItems()
+        val = self.listView.GetSelectedObject()['sort']['value']
+        if val >= 4:
+          val -= 4
+          items[2].SetItemLabel("Zařadit")
+          items[4].SetItemLabel("Zrušit výjimku")
+        else:
+          items[2].SetItemLabel("Vyřadit")
+          items[4].SetItemLabel("Zrušit ruční řazení")
+
+        disable = (val - 1 if val else 4)
+        for i in [0,1,2,4]:
+          items[i].Enable(i != disable)
+
         self.listView.PopupMenu(self.contextMenu, evt.GetPosition())
 
   def UpdateRun(self, run = None):
@@ -466,9 +533,9 @@ class StartController():
       ColumnDefn(u"Číslo", "center", 60, "start_num"),
       ColumnDefn(u"Psovod", "left", 150, lambda t: t['handler_name'] + ' ' + t['handler_surname'], minimumWidth=150, isSpaceFilling=True),
       ColumnDefn(u"Pes", "left", 150, lambda t: t['dog_name'] + ' ' + t['dog_kennel']),
-      ColumnDefn(u"Plemeno", "left", 100, "dog_breed"),
+      ColumnDefn(u"Plemeno", "left", 100, lambda t: t['breed']['name']),
       ColumnDefn(u"Kategorie", "center", 150, FormatPartial("category", "category")),
-      ColumnDefn(u"Řazení", "center", 80, valueGetter=lambda t: GetFormatter("start_sort").format(t['sort']['value'])),
+      ColumnDefn(u"Řazení", "center", 140, valueGetter=lambda t: GetFormatter("start_sort").format(t['sort']['value'])),
     ]
     if self.currentRun and self.currentRun['squads']:
       columns.insert(2, ColumnDefn(u"Družstvo", "left", 100, "squad"))
@@ -491,7 +558,6 @@ class EntryController(DefaultController):
     self._initList()
     self.listView._SelectAndFocus(-1)
 
-    self._reactiveWidgets = []
     self._fieldWidgets = {}
     for name in ['mistakes', 'refusals', 'time', 'disqualified']:
       wgt = self.panel.FindWindowByName(name)
@@ -686,6 +752,7 @@ class ResultController():
     pub.subscribe(self.UpdateList, "squad_results")
 
     self.panel.Bind(wx.EVT_BUTTON, self.OnPrint, id=xrc.XRCID("printResults"))
+    self.panel.Bind(wx.EVT_BUTTON, self.OnExport, id=xrc.XRCID("exportResults"))
 
   def OnPrint(self, evt):
     if self.currentRun:
@@ -696,6 +763,17 @@ class ResultController():
 
   def _gotPrint(self, l):
     Client().Get(("run_times", self.currentRun['id']), lambda t: self._gotTimes(l, t))
+
+  def OnExport(self, evt):
+    if self.currentRun and not self.currentRun['squads']:
+      Client().Get(("results", self.currentRun['id']), self._gotExport)
+
+  def _gotExport(self, l):
+    dlg = wx.FileDialog(self.panel.GetParent().GetParent(), "Vyberte soubor", "", "", "*.csv", wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+    if dlg.ShowModal() == wx.ID_OK and dlg.GetPath():
+      filename = dlg.GetPath()
+      csvexport.SingleRunExport(filename, l)
+    dlg.Destroy()
 
   def _gotTimes(self, l, t):
     self.currentRun['time'] = t[0]
