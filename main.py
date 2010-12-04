@@ -81,6 +81,8 @@ class App(wx.App):
 
   def OnOpenFile(self, evt):
     filename = self.startupDialog.FindWindowByName("filePicker").GetPath()
+    if not filename.endswith(".agi"):
+      filename += ".agi"
     #port = int(self.startupDialog.FindWindowByName("serverPort").GetValue())
     self.server = network.ServerProcessProtocol(lambda: wx.PostEvent(self, network.CallbackEvent(lambda: self.OnConnect(addr="localhost"))))
     reactor.callFromThread(reactor.spawnProcess, self.server, "/usr/bin/env", ["/usr/bin/env", "python2", "server.py", filename])

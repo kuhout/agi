@@ -54,11 +54,12 @@
 							<border>5</border>
 							<object class="wxStaticText" name="stopwatchTime">
 								<font>
-									<size>15</size>
-									<family>default</family>
+									<size>22</size>
+									<family>swiss</family>
 									<style>normal</style>
 									<weight>normal</weight>
 									<underlined>0</underlined>
+									<face>Sans</face>
 								</font>
 								<label>0:00:00</label>
 								<wrap>-1</wrap>
@@ -416,6 +417,26 @@
 										<border>5</border>
 										<object class="wxBoxSizer">
 											<orient>wxHORIZONTAL</orient>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="printCerts">
+													<label>Tisk diplomů</label>
+													<default>0</default>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+												<border>5</border>
+												<object class="wxSpinCtrl" name="certCount">
+													<style>wxSP_ARROW_KEYS</style>
+													<value>3</value>
+													<min>1</min>
+													<max>10</max>
+												</object>
+											</object>
 											<object class="spacer">
 												<option>1</option>
 												<flag>wxEXPAND</flag>
@@ -494,6 +515,26 @@
 										<border>5</border>
 										<object class="wxBoxSizer">
 											<orient>wxHORIZONTAL</orient>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="printSumsCerts">
+													<label>Tisk diplomů</label>
+													<default>0</default>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+												<border>5</border>
+												<object class="wxSpinCtrl" name="sumsCertCount">
+													<style>wxSP_ARROW_KEYS</style>
+													<value>3</value>
+													<min>1</min>
+													<max>10</max>
+												</object>
+											</object>
 											<object class="spacer">
 												<option>1</option>
 												<flag>wxEXPAND</flag>

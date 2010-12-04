@@ -6,7 +6,7 @@ import locale
 from network import Client
 from time import strftime
 from Formatter import *
-from reportlab.platypus import Spacer, SimpleDocTemplate, Table, TableStyle, BaseDocTemplate, PageTemplate, Frame
+from reportlab.platypus import Spacer, SimpleDocTemplate, Table, TableStyle, BaseDocTemplate, PageTemplate, Frame, PageBreak
 from reportlab.platypus.paragraph import Paragraph
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm
@@ -28,6 +28,9 @@ boldStyle = ParagraphStyle(name='Bold', fontSize=10, fontName='DejaVuSans-Bold')
 normalCenterStyle = ParagraphStyle(name='NormalCenter', fontSize=10, fontName='DejaVuSans', alignment=1)
 headingStyle = ParagraphStyle(name='Heading', fontSize=19, fontName='DejaVuSans-Bold', alignment=1, leading=22, spaceAfter=6)
 subHeadingStyle = ParagraphStyle(name='Subheading', fontSize=16, fontName='DejaVuSans-Bold', alignment=1, leading=22, spaceAfter=6)
+certNormalStyle = ParagraphStyle(name='certNormal', fontSize=22, fontName='DejaVuSans', alignment = 1)
+certSmallStyle = ParagraphStyle(name='certSmall', fontSize=14, fontName='DejaVuSans', alignment = 1)
+certLargeStyle = ParagraphStyle(name='certLarge', fontSize=42, fontName='DejaVuSans', alignment = 1)
 
 
 def GetTeamsTable(teams):
@@ -301,6 +304,31 @@ def PrintResults(data, run):
 
   Print(lst)
 
+def PrintCerts(data, run_name, count):
+  lst = []
+
+  for i in range(0, min(count, len(data))):
+    c = data[i]
+    if c['disq']:
+      break
+    lst.append(Spacer(1, 17*cm))
+    lst.append(Paragraph(c["team_handler"], certNormalStyle))
+    lst.append(Spacer(1, 0.95*cm))
+    lst.append(Paragraph(u"a", certSmallStyle))
+    lst.append(Spacer(1, 0.55*cm))
+    lst.append(Paragraph(c["team_dog"], certNormalStyle))
+    lst.append(Spacer(1, 1.5*cm))
+    lst.append(Paragraph(str(i+1) + u". místo", certLargeStyle))
+    lst.append(Spacer(1, 2.5*cm))
+    lst.append(Paragraph(run_name, certNormalStyle))
+    lst.append(PageBreak())
+
+  PrintPlain(lst)
+
+def PrintSumsCerts(data, runs, count):
+  run_name = ' + '.join([x['nice_name'] for x in runs])
+  PrintCerts(data, run_name, count)
+
 def GetSquadSumsTable(sums):
   style = [
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
@@ -425,6 +453,26 @@ class MyTemplate(PageTemplate):
     canvas.drawString(cm, self.pageHeight - 1*cm, self.params['comp_name'])
     canvas.drawRightString(self.pageWidth - 1*cm, self.pageHeight - 1*cm, self.params['date'])
     canvas.restoreState()
+
+class PlainTemplate(PageTemplate):
+  def __init__(self, pageSize=pagesizes.A4):
+      self.pageWidth = pageSize[0]
+      self.pageHeight = pageSize[1]
+      frame1 = Frame(0,
+                     0,
+                     self.pageWidth,
+                     self.pageHeight,
+                     id='normal')
+      PageTemplate.__init__(self, frames=[frame1])
+
+
+def PrintPlain(doc):
+  c = BaseDocTemplate("output.pdf", pageTemplates=[PlainTemplate()], pagesize=pagesizes.A4)
+  c.build(doc)
+  p = subprocess.Popen(['lpr', '-o landscape', 'output.pdf'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  res = p.communicate()
+  if p.poll() != 0:
+    wx.MessageBox('\n'.join(list(res)), "Tisk")
 
 def Print(doc):
   Client().Get(("param", "competition_name"), lambda r: _gotCompName(doc, r))

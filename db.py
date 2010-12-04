@@ -168,6 +168,9 @@ class ServerCache():
     return inv
 
 def Update(classname, values, extraParams={}, *args, **kwargs):
+  if classname == 'param':
+    return SetParamObject(values)
+
   id = values['id']
   del values['id']
   c = globals()[classname.capitalize()]
@@ -175,8 +178,6 @@ def Update(classname, values, extraParams={}, *args, **kwargs):
   obj = c.get_by(id=id)
   if 'destroy' in kwargs.keys():
     obj.delete()
-  elif classname == 'param':
-    return SetParamObject(values)
   else:
     for col in c.table.columns:
       if col.name in values.keys():
@@ -294,9 +295,9 @@ def GetNextStartNum():
 def GetParamObject(name):
   p = Param.get_by(name=name)
   if not p:
-    p = Param(name=name)
-    session.commit()
-  return p.to_dict()
+    return {'name': name, 'value': u""}
+  else:
+    return p.to_dict()
 
 def SetParamObject(obj):
   p = Param.get_by(name=obj['name'])
@@ -307,9 +308,9 @@ def SetParamObject(obj):
 def GetParam(name):
   p = GetParamObject(name)
   if p:
-    return p.value
+    return p['value']
   else:
-    return ""
+    return u""
 
 def SetParam(name, value):
   p = Param.get_by(name=name)
@@ -413,6 +414,7 @@ def GetStartList(run_id, includeRemoved=False):
 
     if new_entries:
       session.commit()
+      return GetStartList(run_id, includeRemoved)
 
     if not run.squads and not run.sort_run_id:
       spacing = 8
@@ -583,6 +585,11 @@ def ResultQuery(run_id, max_time=None, time=None, include_absent=False, results_
     if include_absent:
       disq = disq | (res.c.time == 0)
     r = r.add_columns(disq.label("disq"))
+
+    if run.variant == 0:
+      r = r.filter(team.c.category == run.category)
+    else:
+      r = r.filter(team.c.category != 3)
 
     s = ((func.ifnull(sort.c.value, 0) == 0) & (team.c.def_sort == 1)) | ((func.ifnull(sort.c.value, 0) == 3) & (team.c.def_sort == 0))
     r = r.filter((s != 1) & ((res.c.time > 0) | 'disq'))

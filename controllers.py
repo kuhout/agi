@@ -279,7 +279,7 @@ class RunController(DefaultController):
     self.listView.SetSortColumn(0, True)
 
     self._fieldWidgets['sort_run_id'].cellEditMode = ObjectListView.CELLEDIT_NONE
-    self._fieldWidgets['sort_run_id'].SetColumns([ColumnDefn(u"Běh", "left", 70, "name", isSpaceFilling=True)])
+    self._fieldWidgets['sort_run_id'].SetColumns([ColumnDefn(u"Běh", "left", 150, "name", minimumWidth=150, isSpaceFilling=True)])
 
   def UpdateDialogBreedList(self):
     self._initBreedList()
@@ -752,6 +752,7 @@ class ResultController():
     pub.subscribe(self.UpdateList, "squad_results")
 
     self.panel.Bind(wx.EVT_BUTTON, self.OnPrint, id=xrc.XRCID("printResults"))
+    self.panel.Bind(wx.EVT_BUTTON, self.OnPrintCerts, id=xrc.XRCID("printCerts"))
     self.panel.Bind(wx.EVT_BUTTON, self.OnExport, id=xrc.XRCID("exportResults"))
 
   def OnPrint(self, evt):
@@ -763,6 +764,14 @@ class ResultController():
 
   def _gotPrint(self, l):
     Client().Get(("run_times", self.currentRun['id']), lambda t: self._gotTimes(l, t))
+
+  def OnPrintCerts(self, evt):
+    if self.currentRun and not self.currentRun['squads']:
+      Client().Get(("results", self.currentRun['id']), self._gotPrintCerts)
+
+  def _gotPrintCerts(self, l):
+    count = self.panel.FindWindowByName("certCount").GetValue()
+    printing.PrintCerts(l, self.currentRun['nice_name'], count)
 
   def OnExport(self, evt):
     if self.currentRun and not self.currentRun['squads']:
@@ -784,6 +793,9 @@ class ResultController():
     self.currentRun = run
     self._initList()
     self.UpdateList()
+    enable = bool(self.currentRun) and not self.currentRun['squads']
+    self.panel.FindWindowByName("printCerts").Enable(enable)
+    self.panel.FindWindowByName("certCount").Enable(enable)
 
   def UpdateList(self, id = None):
     if self.panel.GetParent().GetCurrentPage() == self.panel and \
@@ -860,6 +872,7 @@ class SumsController():
 
     self.chooser.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnSelectionChange, id=xrc.XRCID("sumsChooser"))
     self.panel.Bind(wx.EVT_BUTTON, self.OnPrint, id=xrc.XRCID("printSums"))
+    self.panel.Bind(wx.EVT_BUTTON, self.OnPrintCerts, id=xrc.XRCID("printSumsCerts"))
 
   def OnPrint(self, evt):
     if self.runs:
@@ -872,9 +885,22 @@ class SumsController():
   def _gotPrint(self, l):
     printing.PrintSums(l, self.runs)
 
+  def OnPrintCerts(self, evt):
+    if self.runs:
+      run_ids = tuple([x['id'] for x in self.runs])
+      if not self.runs[0]['squads']:
+        Client().Get(("sums", run_ids), self._gotPrintCerts)
+
+  def _gotPrintCerts(self, l):
+    count = self.panel.FindWindowByName("sumsCertCount").GetValue()
+    printing.PrintSumsCerts(l, self.runs, count)
+
   def OnSelectionChange(self, evt):
     self.runs = self.chooser.GetSelectedObjects()
     self.UpdateList()
+    enable = bool(self.runs) and not self.runs[0]['squads']
+    self.panel.FindWindowByName("printSumsCerts").Enable(enable)
+    self.panel.FindWindowByName("sumsCertCount").Enable(enable)
 
   def UpdateChooser(self, id = None):
     Client().Get(("runs", None), self._gotChooserItems)
@@ -890,7 +916,7 @@ class SumsController():
         if r['squads'] != squads:
           wx.MessageBox(u"Nelze vytvářet součty z běhů týmů a jednotlivců zároveň.", u"Chyba")
           self.runs = []
-          self.chooser.Select(-1)
+          self.chooser.DeselectAll()
 
       if self.runs:
         run_ids = tuple([x['id'] for x in self.runs])
@@ -905,12 +931,12 @@ class SumsController():
 
   def _gotSquadSums(self, l):
     objects = []
-    for s in sums:
+    for s in l:
       squad_line = {'rank': s['rank'], 'team_start_num':"", "team_handler":s['name'], "team_dog": "", "team_dog_breed": "", "team_category": "", "result_time":s['result_time'], "total_penalty":s["total_penalty"], "speed":"", "disq":s['disq'], "squad_line": True}
       objects.append(squad_line)
       for t in s['members']:
         objects.append(t)
-    self.listView.SetObjects(l)
+    self.listView.SetObjects(objects)
     self.listView.RepopulateList()
 
   def _gotSums(self, l):
@@ -983,7 +1009,7 @@ class SettingsController:
       return False
     for name, wgt in self._fieldWidgets.items():
       wgt.GetValidator().TransferFromWindow()
-    Client().Post(("param", "competition_name"), self.obj)
+    Client().Post("param", self.obj)
     return True
 
   def OnDialogSave(self, evt):
