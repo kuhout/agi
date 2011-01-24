@@ -1,4 +1,5 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
+VERSION="0.9.1"
 
 import db
 import platform
@@ -6,16 +7,25 @@ import wx
 import locale
 import ObjectListView as OLV
 import subprocess
+import sys
+import datetime
+import esky
+import time
 from MyOLV import MyOLV, ColumnDefn
 from wx import xrc
 from elixir import *
-from pubsub import pub
+from wx.lib.pubsub import setupkwargs
+from wx.lib.pubsub import pub
 from controllers import *
 import stopwatch
 import network
-import socket
+import csvexport
+from datetime import date
+
 from twisted.internet import reactor, protocol
 from twisted.spread import pb
+import twisted
+import logging
 
 class App(wx.App):
 
@@ -41,6 +51,7 @@ class App(wx.App):
 
     self.startupDialog = self.res.LoadDialog(self.frame, 'startupDialog')
     self.startupDialog.Bind(wx.EVT_BUTTON, self.OnOpenFile, id=xrc.XRCID("openButton"))
+    self.startupDialog.Bind(wx.EVT_BUTTON, self.OnNewFile, id=xrc.XRCID("createButton"))
     self.startupDialog.Bind(wx.EVT_BUTTON, self.OnConnect, id=xrc.XRCID("connectButton"))
 
     network.EVT_RELOAD(self, self.OnReload)
@@ -48,18 +59,29 @@ class App(wx.App):
     network.EVT_WAITING(self, self.OnWaiting)
 
     self.fireMessages = True
-    self.startupDialog.ShowModal()
-
+    self.exiting = False
+    if self.startupDialog.ShowModal() == wx.ID_CANCEL:
+      self.OnClose()
     return True
 
-  def OnClose(self, evt):
-    if hasattr(self, 'server') and evt is not None:
-      self.server.Kill()
-    else:
-      #TODO: have a nice dialog here
+  def OnAbout(self, evt=None):
+    info = wx.AboutDialogInfo()
+    info.Name = "Agility"
+    info.Version = VERSION
+    #info.Copyright = "(C) 2011"
+    info.WebSite = ("http://www.kacr.info", "www.kacr.info")
+    #info.Developers = []
+    #info.License = wordwrap("Completely and totally open source!", 500,
+    #                        wx.ClientDC(self.panel))
+    wx.AboutBox(info)
+
+  def OnClose(self, evt=None):
+    #TODO: have a nice dialog here
+    if not self.exiting:
+      self.exiting = True
       self.fireMessages = False
-      reactor.callFromThread(reactor.stop)
       self.frame.Destroy()
+      reactor.stop()
 
   def OnPageChange(self, evt):
     if self.fireMessages:
@@ -79,13 +101,34 @@ class App(wx.App):
     else:
       wx.EndBusyCursor()
 
+  def _startServer(self):
+    server = network.ServerResponder()
+    reactor.listenTCP(8787, pb.PBServerFactory(server))
+    reactor.addSystemEventTrigger("before", "shutdown", server.Close)
+    self._connect("localhost")
+
+  def _connect(self, addr):
+    reactor.callFromThread(Client().Connect, addr, 8787, self, lambda: wx.PostEvent(self, network.CallbackEvent(self.OnConnected)))
+
   def OnOpenFile(self, evt):
-    filename = self.startupDialog.FindWindowByName("filePicker").GetPath()
-    if not filename.endswith(".agi"):
-      filename += ".agi"
-    #port = int(self.startupDialog.FindWindowByName("serverPort").GetValue())
-    self.server = network.ServerProcessProtocol(lambda: wx.PostEvent(self, network.CallbackEvent(lambda: self.OnConnect(addr="localhost"))))
-    reactor.callFromThread(reactor.spawnProcess, self.server, "/usr/bin/env", ["/usr/bin/env", "python2", "server.py", filename])
+    dlg = wx.FileDialog(None, message=u'Otevřít závod', wildcard=u"Závody agility (*.agi)|*.agi", style=wx.FD_OPEN)
+    if dlg.ShowModal() == wx.ID_OK and dlg.GetPath():
+      db.OpenFile(dlg.GetPath())
+      self._startServer()
+
+  def OnNewFile(self, evt):
+    def conv_date(date):
+      t = map(lambda x: int(x), date.FormatISODate().split('-'))
+      return datetime.date(*t)
+
+    dlg = wx.FileDialog(None, message=u'Vyberte název souboru', wildcard=u"Závody agility (*.agi)|*.agi", style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+    if dlg.ShowModal() == wx.ID_OK and dlg.GetPath():
+      name = self.startupDialog.FindWindowByName("competition_name").GetValue()
+      date_from = conv_date(self.startupDialog.FindWindowByName("date_from").GetValue())
+      date_to = conv_date(self.startupDialog.FindWindowByName("date_to").GetValue())
+      params = {"competition_name":name, "date_from":date_from, "date_to":date_to}
+      db.OpenFile(dlg.GetPath(), params)
+      self._startServer()
 
   def OnConnected(self, arg = None):
     if not self.connected:
@@ -95,10 +138,9 @@ class App(wx.App):
       self.connected = True
       self.frame.Show()
 
-  def OnConnect(self, evt = None, addr = None):
-    #port = int(port or self.startupDialog.FindWindowByName("clientPort").GetValue())
-    addr = addr or self.startupDialog.FindWindowByName("clientAddress").GetValue()
-    reactor.callFromThread(Client().Connect, addr, 8787, self, lambda: wx.PostEvent(self, network.CallbackEvent(self.OnConnected)))
+  def OnConnect(self, evt = None):
+    addr = self.startupDialog.FindWindowByName("clientAddress").GetValue()
+    self._connect(addr)
 
   def _initLocal(self):
     entryPanel = self.frame.FindWindowByName("entryPanel")
@@ -120,6 +162,8 @@ class App(wx.App):
     self.frame.Bind(wx.EVT_MENU, self.teamController.OnImportTeams, id=xrc.XRCID("importTeams"))
     self.frame.Bind(wx.EVT_MENU, self.entryController.OnConnectSimpleStopwatch, id=xrc.XRCID("connectSimpleStopwatch"))
     self.frame.Bind(wx.EVT_MENU, self.entryController.OnConnectAdvancedStopwatch, id=xrc.XRCID("connectAdvancedStopwatch"))
+    self.frame.Bind(wx.EVT_MENU, self.OnAbout, id=xrc.XRCID("aboutMenu"))
+    self.frame.Bind(wx.EVT_MENU, self.OnExport, id=xrc.XRCID("csvExport"))
     self.frame.Bind(wx.EVT_CLOSE, self.OnClose)
     self.frame.FindWindowByName("notebook").Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChange)
 
@@ -139,14 +183,31 @@ class App(wx.App):
     self.sumsList = MyOLV(self.frame, 0, sortable=False)
     self.res.AttachUnknownControl('sumsList', self.sumsList)
     self.runDialogSortList = MyOLV(self.runDialog, wx.LC_SINGLE_SEL, sortable=False)
-    self.res.AttachUnknownControl('sort_run_id', self.runDialogSortList)
+    self.res.AttachUnknownControl('sort_run_id', self.runDialogSortList, self.runDialog)
     self.runDialogBreedList = MyOLV(self.runDialog, wx.LC_SINGLE_SEL, sortable=False)
-    self.res.AttachUnknownControl('breedList', self.runDialogBreedList)
+    self.res.AttachUnknownControl('breedList', self.runDialogBreedList, self.runDialog)
+    self.teamDialogPresentList = MyOLV(self.teamDialog, wx.LC_SINGLE_SEL, sortable=False)
+    self.res.AttachUnknownControl('presentList', self.teamDialogPresentList, self.teamDialog)
 
+  @inlineCallbacks
+  def OnExport(self, evt):
+    dlg = wx.FileDialog(None, message=u'Vyberte soubor', wildcard=u"*.csv", style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+    if dlg.ShowModal() == wx.ID_OK and dlg.GetPath():
+      wx.BeginBusyCursor()
+      filename = dlg.GetPath()
+      csvexport.CsvExport(filename)
+      wx.EndBusyCursor()
+    dlg.Destroy()
 
 def main():
-  app = App(False)
-  app.MainLoop()
+  twisted.python.log.startLogging(open('network.log', 'w'), setStdout=False)
+  logging.basicConfig(filename="err.log",level=logging.DEBUG, filemode="w")
+  try:
+    app = App(redirect=False)
+    app.MainLoop()
+  except:
+    logging.exception("Error!")
 
 if __name__ == '__main__':
   main()
+

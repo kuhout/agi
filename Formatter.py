@@ -7,8 +7,10 @@ from functools import partial
 def GetFormatter(name):
   enums = {
       'size': {0: "S",1:"M",2:"L"},
-      'start_sort': {0:"", 1:"Začátek", 2:"Konec", 3:"Vyřazen", 4:"Standardně vyřazen", 5:"Výjimka, začátek", 6:"Výjimka, konec", 7:"Výjimka"},
+      'start_sort': {0:"", 1:u"Začátek", 2:u"Konec", 3:u"Vyřazen", 4:u"Standardně vyřazen", 5:u"Výjimka, začátek", 6:u"Výjimka, konec", 7:u"Výjimka"},
       'category': {0:"A1",1:"A2",2:"A3",3:'V'},
+      'run_style': {0:u"Agility",1:u"Zkoušky Agility",2:u"Jumping",3:u"Zkoušky Jumping", 4:u"Speciální"},
+      'run_style_short': {0:u"A",1:u"ZkA",2:u"J",3:u"ZkJ", 4:u"Spec"},
       'run_variant': {0:u"Zkoušky", 1:u"Open"},
       'run_time_calc': {0:u"Ruční", 1:u"Podle času nejlepšího"},
       'yes_no': {0:"Ne", 1:"Ano"},
@@ -259,3 +261,18 @@ class ListFromCallableFormatter( Formatter ):
         res = self.func()
         return map(lambda x: "" if x == None else unicode(x), res)
 
+class ListFormatter( Formatter ):
+    """
+    Formatter providing a list of values and no validation
+    """
+    def __init__( self, l, *args, **kwargs ):
+
+        super(ListFormatter,self).__init__( *args, **kwargs )
+        self.l = l
+
+
+    def values( self ):
+        """
+        Return list of values
+        """
+        return self.l

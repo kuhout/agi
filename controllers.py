@@ -10,14 +10,15 @@ import stopwatch
 import csv, codecs
 import locale
 import csvexport
-from pubsub import pub
 from wx import xrc
+from wx.lib.pubsub import pub
 from Formatter import *
 from ObjectListView import ObjectListView, ListCtrlPrinter, ReportFormat
 from functools import partial
 from MyOLV import ColumnDefn
 from network import Client
 from wx.lib.agw import floatspin
+from twisted.internet.defer import inlineCallbacks, returnValue
 
 class DefaultController:
   def __init__(self, dialog, panel):
@@ -47,8 +48,13 @@ class DefaultController:
       validator = wgt.GetValidator()
       validator.SetObject(self.obj)
       validator.TransferToWindow()
-      wgt.SetBackgroundColour('Default')
-      wgt.SetForegroundColour('Default')
+      wgt.SetBackgroundColour(wx.NullColor)
+      wgt.SetForegroundColour(wx.NullColor)
+    self._dialogPostUpdate()
+
+  def _dialogPostUpdate(self):
+    w, h = self.dialog.GetSizeTuple()
+    self.dialog.SetSize((w+1, h+1))
 
   def OnEditObject(self, evt):
     obj = self.listView.GetSelectedObject()
@@ -67,9 +73,10 @@ class DefaultController:
           wgt.SetForegroundColour("Black")
           valid = False
         else:
-          wgt.SetBackgroundColour('Default')
-          wgt.SetForegroundColour('Default')
+          wgt.SetBackgroundColour(wx.NullColor)
+          wgt.SetForegroundColour(wx.NullColor)
       if not valid:
+        self.dialog.Refresh()
         return False
       for name, wgt in self._fieldWidgets.items():
         wgt.GetValidator().TransferFromWindow()
@@ -94,15 +101,14 @@ class DefaultController:
     if self.SaveActiveObject():
       self.dialog.EndModal(wx.ID_SAVE)
 
+  @inlineCallbacks
   def UpdateList(self, id = None):
     if self.panel.GetParent().GetCurrentPage() == self.panel:
-      Client().Get((self.query_string, None), self._gotListValues)
+      l = yield Client().sGet((self.query_string, None))
+      self.listView.SetObjects(l)
+      self.listView.RepopulateList()
     else:
       self._initList()
-
-  def _gotListValues(self, l):
-    self.listView.SetObjects(l)
-    self.listView.RepopulateList()
 
 
 class TeamController(DefaultController):
@@ -110,7 +116,9 @@ class TeamController(DefaultController):
     self.objName = "team"
     self.query_string = "teams"
     self.listView = panel.FindWindowByName("teamList")
+    self.presentList = dialog.FindWindowByName("presentList")
     self._initList()
+    self._initPresentList()
     DefaultController.__init__(self, dialog, panel)
 
     for name in ['number', 'osa', 'handler_name', 'handler_surname', 'dog_name', 'dog_kennel', 'dog_nick', 'category', 'size', 'paid', 'dog_breed_id', 'squad', 'def_sort']:
@@ -120,9 +128,17 @@ class TeamController(DefaultController):
     self.panel.Bind(wx.EVT_BUTTON, self.OnNewObject, id=xrc.XRCID('newTeam'))
     self.panel.Bind(wx.EVT_BUTTON, self.OnDeleteObject, id=xrc.XRCID('deleteTeam'))
     self.panel.Bind(wx.EVT_BUTTON, self.OnPrint, id=xrc.XRCID("printTeams"))
+    self.panel.Bind(wx.EVT_CHOICE, self.OnDayChoice, id=xrc.XRCID('teamDaySelect'))
 
     self.UpdateBreeds()
     self.UpdateList()
+
+  def OnDayChoice(self, evt):
+    self.listView.RepopulateList()
+
+  def _dialogPostUpdate(self):
+    self.presentList.RepopulateList()
+    DefaultController._dialogPostUpdate(self)
 
   def UpdateBreeds(self):
     Client().Get(("breeds", None), self._gotBreeds)
@@ -158,10 +174,57 @@ class TeamController(DefaultController):
       Client().ImportTeams(teams)
     dlg.Destroy()
 
+  def SetPresence(self, day, state):
+    if self.obj:
+      a = 1 << day['day'] - 1
+      if not state:
+        self.obj['present'] = self.obj['present'] & ~(a)
+      else:
+        self.obj['present'] = self.obj['present'] | a
+
+  def GetPresence(self, day):
+    if self.obj:
+      return bool(self.obj['present'] & (1<<(day['day'] - 1)))
+    else:
+      return False
+
+  def SetPresenceFromList(self, team, state):
+      kwargs = {}
+      if state and not team['start_num']:
+        kwargs['grab_start_num'] = True
+      day = self.panel.FindWindowByName("teamDaySelect").GetSelection()
+      a = 1 << day
+      if not state:
+        team['present'] = team['present'] & ~(a)
+      else:
+        team['present'] = team['present'] | a
+      Client().Post(self.objName, team, **kwargs)
+
+  def GetPresenceFromList(self, team):
+    day = self.panel.FindWindowByName("teamDaySelect").GetSelection()
+    return bool(team['present'] & (1<<day))
+
+  @inlineCallbacks
+  def _initPresentList(self):
+    columns = [
+      ColumnDefn(u"", fixedWidth=24, checkStateGetter=self.GetPresence, checkStateSetter=self.SetPresence),
+      ColumnDefn(u"Den", "left", 100, "day", isSpaceFilling=True),
+    ]
+    self.presentList.cellEditMode = ObjectListView.CELLEDIT_NONE
+    self.presentList.SetColumns(columns)
+    self.presentList.SetSortColumn(1, True)
+    params = yield Client().sGet(("params", None))
+    days = range(1, abs((params['date_to'] - params['date_from']).days) + 2)
+    daylist = map(lambda x: {'day':x}, days)
+    self.presentList.SetObjects(daylist)
+    dayselect = self.panel.FindWindowByName("teamDaySelect")
+    dayselect.SetItems(map(lambda x: str(x), days))
+    dayselect.SetSelection(0)
+
   def _initList(self):
     self.listView.cellEditMode = ObjectListView.CELLEDIT_NONE
     self.listView.SetColumns([
-      ColumnDefn(u"Přítomen", fixedWidth=24, checkStateGetter=lambda x: x['present'], checkStateSetter=self.SetTeamPresent),
+      ColumnDefn(u"Přítomen", fixedWidth=24, checkStateGetter=self.GetPresenceFromList, checkStateSetter=self.SetPresenceFromList),
       ColumnDefn(u"Číslo", "center", 60, "start_num"),
       ColumnDefn(u"Číslo průkazu", "center", 100, "number"),
       ColumnDefn(u"Příjmení", "left", 100, "handler_surname"),
@@ -225,7 +288,7 @@ class TeamController(DefaultController):
       self.obj['present'] = 1
       self._updateValidators()
     else:
-      wx.MessageBox("Průkaz nenalezen.\nZkontrolujte, zda jste správně zadali číslo.", "Chyba")
+      wx.MessageBox(u"Průkaz nenalezen.\nZkontrolujte, zda jste správně zadali číslo.", "Chyba")
 
 class RunController(DefaultController):
   def __init__(self, dialog, panel):
@@ -239,7 +302,7 @@ class RunController(DefaultController):
     DefaultController.__init__(self, dialog, panel)
 
     self._reactiveWidgets = ['time_calc', 'variant']
-    for name in ['time_calc', 'name', 'size', 'category', 'variant', 'date', 'length', 'time', 'max_time', 'judge', 'hurdles', 'min_speed', 'squads', 'sort_run_id']:
+    for name in ['time_calc', 'name', 'size', 'category', 'variant', 'style', 'day', 'length', 'time', 'max_time', 'judge', 'hurdles', 'min_speed', 'squads', 'sort_run_id']:
       self._fieldWidgets[name] = self.dialog.FindWindowByName(name)
     self._setValidators()
 
@@ -264,6 +327,9 @@ class RunController(DefaultController):
     self.UpdateRunChooser()
     self.UpdateDialogSortList()
 
+  def _dialogPostUpdate(self):
+    self.breedList.RepopulateList()
+    DefaultController._dialogPostUpdate(self)
 
   def _initList(self):
     self.listView.cellEditMode = ObjectListView.CELLEDIT_NONE
@@ -272,6 +338,7 @@ class RunController(DefaultController):
       ColumnDefn(u"Velikost", "center", 120, FormatPartial("size", "size")),
       ColumnDefn(u"Kategorie", "center", 150, FormatPartial("category", "category")),
       ColumnDefn(u"Typ", "left", 150, FormatPartial("variant", "run_variant")),
+      ColumnDefn(u"Den", "left", 150, "day"),
       ColumnDefn(u"Družstva", "left", 150, FormatPartial("squads", "yes_no")),
       ColumnDefn(u"Rozhodčí", "left", 150, "judge"),
     ])
@@ -309,14 +376,19 @@ class RunController(DefaultController):
     self.breedList.cellEditMode = ObjectListView.CELLEDIT_NONE
     self.breedList.SetColumns(columns)
     self.breedList.SetSortColumn(1, True)
+    self.breedList.GetContainingSizer().Layout()
 
+  @inlineCallbacks
   def _setValidators(self):
+    params = yield Client().sGet(("params", None))
+    daylist = dict(map(lambda x: (x,str(x)), range(1, abs((params['date_to'] - params['date_from']).days) + 2)))
+
     def wgt(name):
       return self.dialog.FindWindowByName(name)
 
     wgt('name').SetValidator(OAV.ObjectAttrTextValidator(None, 'name', None, True))
 
-    for name in ['date', 'judge']:
+    for name in ['judge']:
       wgt(name).SetValidator(OAV.ObjectAttrTextValidator(None, name, None, False))
     for name in ['length', 'time', 'max_time', 'min_speed']:
       wgt(name).SetValidator(OAV.ObjectAttrTextValidator(None, name, FloatFormatter(), False))
@@ -325,8 +397,12 @@ class RunController(DefaultController):
     wgt('category').SetValidator(validator)
     validator = OAV.ObjectAttrSelectorValidator(None, 'size', GetFormatter('size'), False)
     wgt('size').SetValidator(validator)
+    validator = OAV.ObjectAttrSelectorValidator(None, 'day', EnumFormatter(EnumType(daylist)), False)
+    wgt('day').SetValidator(validator)
     validator = OAV.ObjectAttrSelectorValidator(None, 'variant', GetFormatter('run_variant'), False)
     wgt('variant').SetValidator(validator)
+    validator = OAV.ObjectAttrSelectorValidator(None, 'style', GetFormatter('run_style'), False)
+    wgt('style').SetValidator(validator)
     validator = OAV.ObjectAttrSelectorValidator(None, 'time_calc', GetFormatter('run_time_calc'), False)
     wgt('time_calc').SetValidator(validator)
     validator = OAV.ObjectAttrTextValidator(None, 'hurdles', IntFormatter(), False)
@@ -346,7 +422,7 @@ class RunController(DefaultController):
       self.runInfo.SetLabel("")
 
   def _gotRunTimes(self, times):
-    self.runInfo.SetLabel("SČ: %.2f, MČ: %.2f" % times)
+    self.runInfo.SetLabel(u"SČ: %.2f, MČ: %.2f" % times)
 
   def UpdateRunChooser(self, id = None):
     Client().Get(("runs", None), self._gotChooserItems)
@@ -500,11 +576,11 @@ class StartController():
         val = self.listView.GetSelectedObject()['sort']['value']
         if val >= 4:
           val -= 4
-          items[2].SetItemLabel("Zařadit")
-          items[4].SetItemLabel("Zrušit výjimku")
+          items[2].SetItemLabel(u"Zařadit")
+          items[4].SetItemLabel(u"Zrušit výjimku")
         else:
-          items[2].SetItemLabel("Vyřadit")
-          items[4].SetItemLabel("Zrušit ruční řazení")
+          items[2].SetItemLabel(u"Vyřadit")
+          items[4].SetItemLabel(u"Zrušit ruční řazení")
 
         disable = (val - 1 if val else 4)
         for i in [0,1,2,4]:
@@ -514,6 +590,7 @@ class StartController():
 
   def UpdateRun(self, run = None):
     self.currentRun = run
+    self._initList()
     self.UpdateList()
 
   def UpdateList(self, id = None):
@@ -991,8 +1068,8 @@ class SettingsController:
       validator = wgt.GetValidator()
       validator.SetObject(self.obj)
       validator.TransferToWindow()
-      wgt.SetBackgroundColour('Default')
-      wgt.SetForegroundColour('Default')
+      wgt.SetBackgroundColour(wx.NullColor)
+      wgt.SetForegroundColour(wx.NullColor)
 
   def SaveObjects(self):
     valid = True
@@ -1003,24 +1080,22 @@ class SettingsController:
         wgt.SetForegroundColour("Black")
         valid = False
       else:
-        wgt.SetBackgroundColour('Default')
-        wgt.SetForegroundColour('Default')
+        wgt.SetBackgroundColour(wx.NullColor)
+        wgt.SetForegroundColour(wx.NullColor)
     if not valid:
       return False
     for name, wgt in self._fieldWidgets.items():
       wgt.GetValidator().TransferFromWindow()
-    Client().Post("param", self.obj)
+    Client().Post("params", self.obj)
     return True
 
   def OnDialogSave(self, evt):
     if self.SaveObjects():
       self.dialog.EndModal(wx.ID_SAVE)
 
+  @inlineCallbacks
   def OnCompetitionSettings(self, evt):
-    Client().Get(("param", "competition_name"), self._gotParam)
-
-  def _gotParam(self, p):
-    self.obj = p
+    self.obj = yield Client().sGet(("params", None))
     self._updateValidators()
     self.dialog.ShowModal()
 
@@ -1029,5 +1104,5 @@ class SettingsController:
       return self.dialog.FindWindowByName(name)
 
     for name in ['competition_name']:
-      wgt(name).SetValidator(OAV.ObjectAttrTextValidator(None, 'value', None, True))
+      wgt(name).SetValidator(OAV.ObjectAttrTextValidator(None, name, None, True))
 

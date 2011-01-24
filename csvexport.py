@@ -2,6 +2,9 @@
 
 import db
 import csv, cStringIO, codecs
+from datetime import timedelta
+from network import Client
+from twisted.internet.defer import inlineCallbacks
 from Formatter import *
 
 class UnicodeWriter:
@@ -34,15 +37,24 @@ class UnicodeWriter:
       self.writerow(row)
 
 
-def CsvExport():
-  w = UnicodeWriter(open("out.csv", "wb"))
+@inlineCallbacks
+def CsvExport(filename):
+  w = UnicodeWriter(open(filename, "wb"))
   w.writerow(["length", "referee", "standard_time", "hurdle_count", "name", "size", "category", "max_time", "date", "speed", "style"])
   w.writerow(["rank", "handler", "dog", "book", "mistakes", "refusals", "time", "time_penalty", "total_penalty", "rating", "speed"])
-  for r in db.Run.query.filter_by(squads=False).all():
-    time, mtime = db.GetRunTimes(r)
-    w.writerow(["run", r.length, r.judge, time, r.hurdles, r.NiceName(), GetFormatter("size").format(r.size), GetFormatter("category").format(r.category), mtime, r.date, r.length/time, "Spec"])
-    for m in db.GetResults(r):
-      w.writerow(["res", m['rank'], m["team_handler"], m["team_dog"], m["team_number"], abs(m["result_mistakes"]), abs(m["result_refusals"]), abs(m["result_time"]), abs(m["time_penalty"]), abs(m["total_penalty"]), "", abs(m["speed"])])
+  runs = yield Client().sGet(("runs", None))
+  params = yield Client().sGet(("params", None))
+  for r in runs:
+    if r['squads']:
+      continue
+    time, mtime = yield Client().sGet(("run_times", r['id']))
+    date = (params['date_from'] + timedelta(r['day']-1)).strftime("%x")
+    speed = r['length']/time if time > 0.0 else 0
+    w.writerow(["run", r['length'], r['judge'], time, r['hurdles'], r['nice_name'], GetFormatter("size").format(r['size']), GetFormatter("category").format(r['category']), mtime, date, speed, GetFormatter("run_style_short").format(r['style'])])
+    results = yield Client().sGet(("results", r['id']))
+    for m in results:
+      rating = m['rating'] if r['variant'] == 0 else ""
+      w.writerow(["res", m['rank'], m["team_handler"], m["team_dog"], m["team_number"], abs(m["result_mistakes"]), abs(m["result_refusals"]), abs(m["result_time"]), abs(m["time_penalty"]), abs(m["total_penalty"]), rating, abs(m["speed"])])
 
 def SingleRunExport(filename, data):
   w = UnicodeWriter(open(filename, "wb"), ",")

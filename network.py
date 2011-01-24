@@ -5,7 +5,9 @@ import threading
 import time
 
 from twisted.internet import reactor, defer, error, threads, protocol
+from twisted.internet.defer import inlineCallbacks, returnValue
 from twisted.spread import pb
+from twisted.python import log
 
 EVT_RELOAD_ID = wx.NewId()
 EVT_WAITING_ID = wx.NewId()
@@ -57,6 +59,9 @@ class ServerProcessProtocol(protocol.ProcessProtocol):
     """
     self.callback()
 
+  def errReceived(self, data):
+    print(data)
+
 class ClientResponder(pb.Referenceable):
   def remote_update_cache(self, value):
     reactor.callFromThread(Client().UpdateCache, value)
@@ -103,6 +108,18 @@ class Client(object):
   def _sentResponder(self):
     wx.PostEvent(self.notify, CallbackEvent(self.connected_callback))
 
+  @inlineCallbacks
+  def sGet(self, what):
+    if what in self.cache.keys():
+      returnValue(self.cache[what])
+    else:
+      wx.PostEvent(self.notify, WaitingEvent(True))
+      result = yield self.server.callRemote("sget", what)
+      wx.PostEvent(self.notify, WaitingEvent(False))
+      self.cache[result[0]] = result[1]
+      returnValue(result[1])
+
+  #obsolete
   def Get(self, what, finished_callback):
     reactor.callFromThread(self._get, what, finished_callback)
 
@@ -154,7 +171,7 @@ class Client(object):
 
   def _connectionError(self, f):
     wx.PostEvent(self.notify, WaitingEvent(False))
-    wx.PostEvent(self.notify, CallbackEvent(wx.MessageBox, "Chyba spojení", "Chyba"))
+    wx.PostEvent(self.notify, CallbackEvent(wx.MessageBox, u"Chyba spojení", "Chyba"))
 
   def UpdateCache(self, value):
     self.cache[value[0]] = value[1]
@@ -184,6 +201,36 @@ class ServerResponder(pb.Root):
     u = db.ImportTeams(teams)
     self._invalidate_remote_caches(u)
 
+  def remote_sget(self, what):
+    if what[0] == 'teams':
+      call = db.GetTeams
+    elif what[0] == 'runs':
+      call = db.GetRuns
+    elif what[0] == 'breeds':
+      call = db.GetBreeds
+    elif what[0] == 'results':
+      call = lambda: db.GetResults(what[1])
+    elif what[0] == 'params':
+      call = lambda: db.GetParams()
+    elif what[0] == 'squads':
+      call = lambda: db.GetSquads(what[1])
+    elif what[0] == 'squad_results':
+      call = lambda: db.GetSquadResults(what[1])
+    elif what[0] == 'sums':
+      call = lambda: db.GetSums(what[1])
+    elif what[0] == 'squad_sums':
+      call = lambda: db.GetSquadSums(what[1])
+    elif what[0] == 'run_times':
+      call = lambda: db.GetRunTimes(what[1])
+    elif what[0] == 'start_list':
+      call = lambda: db.GetStartList(what[1], False)
+    elif what[0] == 'start_list_with_removed':
+      call = lambda: db.GetStartList(what[1], True)
+    else:
+      return (what, None)
+
+    return threads.deferToThread(self._query, what, call)
+
   def remote_get(self, what, request=None):
     """
     Runs a query on a local database asynchronously.
@@ -199,8 +246,8 @@ class ServerResponder(pb.Root):
       call = db.GetBreeds
     elif what[0] == 'results':
       call = lambda: db.GetResults(what[1])
-    elif what[0] == 'param':
-      call = lambda: db.GetParamObject(what[1])
+    elif what[0] == 'params':
+      call = lambda: db.GetParams()
     elif what[0] == 'squads':
       call = lambda: db.GetSquads(what[1])
     elif what[0] == 'squad_results':
@@ -267,11 +314,11 @@ class ServerResponder(pb.Root):
       l.append(c.callRemote(method, *args, **kwargs))
     return defer.DeferredList(l)
 
-
   def Close(self):
     d = defer.Deferred()
     reactor.callLater(0, self._do_closing, d)
     return d
 
   def _do_closing(self, d):
+    db.session.flush()
     self._clientCall("close").addCallback(d.callback)

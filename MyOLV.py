@@ -9,7 +9,7 @@ class MyOLV(FastObjectListView):
   def __init__(self, parent, style=0, sortable=True):
     FastObjectListView.__init__(self, parent, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER|style, sortable=sortable)
     self.parent = parent
-    self.SetEmptyListMsg(u"Žádné položky")
+    self.SetEmptyListMsg(u"")
     if self.smallImageList == None:
       self.SetImageLists()
 

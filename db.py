@@ -1,6 +1,6 @@
 # coding=utf-8
+
 from elixir import *
-from pubsub import pub
 import random
 import os
 import shutil
@@ -13,8 +13,9 @@ from sqlalchemy.orm import aliased
 from sqlalchemy import select, func, UniqueConstraint
 
 class Param(Entity):
-  name = Field(Unicode(50), unique=True, primary_key=True, index=True)
-  value = Field(Unicode(50), default=u"")
+  competition_name = Field(Unicode(100), default=u"")
+  date_from = Field(Date())
+  date_to = Field(Date())
 
 class Team(Entity):
   id = Field(Integer, autoincrement=True, unique=True, primary_key=True, index=True)
@@ -80,10 +81,11 @@ class Result(Entity):
 class Run(Entity):
   id = Field(Integer, autoincrement=True, unique=True, primary_key=True, index=True)
   name = Field(Unicode(50), default=u"")
-  date = Field(Unicode(50), default=u"")
-  category = Field(Integer, default=None)
+  day = Field(Integer, default=1)
+  category = Field(Integer, default=0)
   size = Field(Integer, default=0)
   variant = Field(Integer, default=0)
+  style = Field(Integer, default=0)
   time_calc = Field(Integer, default=0)
   squads = Field(Integer, default=0)
   length = Field(Float, default=0.0)
@@ -168,8 +170,8 @@ class ServerCache():
     return inv
 
 def Update(classname, values, extraParams={}, *args, **kwargs):
-  if classname == 'param':
-    return SetParamObject(values)
+  if classname == 'params':
+    return SetParams(values)
 
   id = values['id']
   del values['id']
@@ -250,7 +252,7 @@ def GetBreeds():
 
 def GetRuns():
   res = []
-  for r in Run.query.order_by(Run.table.c.date, Run.table.c.name, Run.table.c.size, Run.table.c.category).all():
+  for r in Run.query.order_by(Run.table.c.day, Run.table.c.name, Run.table.c.size, Run.table.c.category).all():
     d = r.to_dict()
     d['nice_name'] = r.NiceName()
     d['breeds'] = []
@@ -259,13 +261,18 @@ def GetRuns():
     res.append(d)
   return res
 
-def OpenFile(filename):
+def OpenFile(filename, params=None):
   if not os.path.isfile(filename):
     shutil.copy("default.db", filename)
   metadata.bind = "sqlite:///" + filename
-  #metadata.bind.echo = True
   setup_all()
   session.configure(autocommit=False, autoflush=True)
+  if params:
+    p = Param.get_by()
+    for col in Param.table.columns:
+      if col.name in params.keys():
+        setattr(p, col.name, params[col.name])
+    session.commit()
   #expire_on_commit=False)
   #metadata.bind.engine.connect().execute("PRAGMA synchronous = OFF")
 
@@ -292,37 +299,20 @@ def GetNextStartNum():
     n = n+1
   return n
 
-def GetParamObject(name):
-  p = Param.get_by(name=name)
-  if not p:
-    return {'name': name, 'value': u""}
-  else:
-    return p.to_dict()
+def GetParams():
+  p = Param.get_by()
+  return p.to_dict()
 
-def SetParamObject(obj):
-  p = Param.get_by(name=obj['name'])
-  p.value = obj['value']
+def SetParams(obj):
+  p = Param.get_by()
+  for col in Param.table.columns:
+    if col.name in obj.keys():
+      setattr(p, col.name, obj[col.name])
   session.commit()
-  return ServerCache().Invalidate([('param', obj['name'])])
-
-def GetParam(name):
-  p = GetParamObject(name)
-  if p:
-    return p['value']
-  else:
-    return u""
-
-def SetParam(name, value):
-  p = Param.get_by(name=name)
-  if p:
-    p.value = value
-  else:
-    p = Param(name=name, value=value)
-  session.commit()
-  return ServerCache().Invalidate([('param', name)])
+  return ServerCache().Invalidate([('params', None)])
 
 def DoSpacing(a, space=7):
-  #ensures proper spacing of handlers
+  #ensures proper spacing of handlers in start lists
   def app(k):
     res.append(k)
     last.append(k['handler_name'] + k['handler_surname'])
@@ -346,10 +336,10 @@ def DoSpacing(a, space=7):
   return res, len(stack) > 0
 
 def GetSquads(run_id=None):
-  conditions = (Team.table.c.present == 1)
+  conditions = (Team.table.c.present > 0)
   if run_id:
     run = Run.get_by(id=run_id)
-    conditions = conditions & (Team.table.c.size==run.size)
+    conditions = conditions & (Team.table.c.size==run.size) & (Team.table.c.present.op('&')(1 << (run.day - 1)))
   res = session.execute(select([distinct(Team.table.c.squad)], conditions)).fetchall()
   squads = [item for sublist in res for item in sublist]
   for s in squads[:]:
@@ -363,7 +353,7 @@ def GetStartList(run_id, includeRemoved=False):
     breeds = BreedFilter.query.filter_by(run=run).all()
     sq = aliased(Result, Result.query.filter_by(run=run).subquery())
     sort = aliased(Sort, Sort.query.filter_by(run=run).subquery())
-    query = Team.query.filter_by(size=run.size).filter_by(present=1)
+    query = Team.query.filter_by(size=run.size).filter(Team.table.c.present.op('&')(1 << (run.day - 1)))
     if len(breeds):
       query = query.filter(Team.table.c.dog_breed_id.in_([b.breed_id for b in breeds]))
     if run.variant == 0:
@@ -557,7 +547,7 @@ def ResultQuery(run_id, max_time=None, time=None, include_absent=False, results_
   run = Run.get_by(id=run_id)
   if run:
     r = session.query()
-    team = alias(select([Team.table], Team.table.c.present==1), alias="team")
+    team = alias(select([Team.table], Team.table.c.present.op('&')(1 << (run.day - 1))), alias="team")
     sort = alias(select([Sort.table], Sort.table.c.run_id==run_id), alias="sort")
     breed = alias(select([Breed.table]), alias="breed")
     res = alias(select([Result.table], Result.table.c.run_id==run_id), alias="result")
@@ -637,7 +627,13 @@ def GetResults(run_id):
 
 def GetSums(runs):
   if runs:
-    team = alias(select([Team.table], Team.table.c.present==1), alias="team")
+    run_objs = []
+    presence_mask = 0
+    for run_id in runs:
+      run = Run.get_by(id=run_id)
+      run_objs.append(run)
+      presence_mask = presence_mask | (1 << (run.day - 1))
+    team = alias(select([Team.table], Team.table.c.present.op('&')(presence_mask)), alias="team")
     breed = alias(select([Breed.table]), alias="breed")
     r = session.query()
     r = r.add_entity(Team, alias=team)
@@ -651,11 +647,10 @@ def GetSums(runs):
     ran = []
     lengths = 0
 
-    for run_id in runs:
-      run = Run.get_by(id=run_id)
-      run_time, run_max_time = ServerCache().Get(('run_times', run_id), lambda: GetRunTimes(run_id))
-      res = alias(select([Result.table], Result.table.c.run_id==run_id))
-      sort = alias(select([Sort.table], Sort.table.c.run_id==run_id))
+    for run in run_objs:
+      run_time, run_max_time = ServerCache().Get(('run_times', run.id), lambda: GetRunTimes(run.id))
+      res = alias(select([Result.table], Result.table.c.run_id==run.id))
+      sort = alias(select([Sort.table], Sort.table.c.run_id==run.id))
       pen.append(res.c.mistakes*5 + res.c.refusals*5)
       time_pen.append((res.c.time - run_time)*(res.c.time > run_time))
       time.append(res.c.time)

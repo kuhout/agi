@@ -3,8 +3,12 @@ import wx
 
 import db
 import locale
+import tempfile
+
+import platform
+
 from network import Client
-from time import strftime
+from datetime import timedelta
 from Formatter import *
 from reportlab.platypus import Spacer, SimpleDocTemplate, Table, TableStyle, BaseDocTemplate, PageTemplate, Frame, PageBreak
 from reportlab.platypus.paragraph import Paragraph
@@ -13,14 +17,18 @@ from reportlab.lib.units import inch, cm
 from reportlab.lib import colors, pagesizes
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from twisted.internet.defer import inlineCallbacks
 import subprocess
 
+if platform.system() == "Windows":
+  import win32api
+  import win32print
 
 
-pdfmetrics.registerFont(TTFont('DejaVuSans', 'DejaVuSans.ttf'))
-pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', 'DejaVuSans-Bold.ttf'))
-pdfmetrics.registerFont(TTFont('DejaVuSans-BoldOblique', 'DejaVuSans-BoldOblique.ttf'))
-pdfmetrics.registerFont(TTFont('DejaVuSans-Oblique', 'DejaVuSans-Oblique.ttf'))
+pdfmetrics.registerFont(TTFont('DejaVuSans', 'fonts/DejaVuSans.ttf'))
+pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', 'fonts/DejaVuSans-Bold.ttf'))
+pdfmetrics.registerFont(TTFont('DejaVuSans-BoldOblique', 'fonts/DejaVuSans-BoldOblique.ttf'))
+pdfmetrics.registerFont(TTFont('DejaVuSans-Oblique', 'fonts/DejaVuSans-Oblique.ttf'))
 pdfmetrics.registerFontFamily('DejaVuSans',normal='DejaVuSans',bold='DejaVuSans-Bold',italic='DejaVuSans-Oblique',boldItalic='DejaVuSans-BoldOblique')
 
 normalStyle = ParagraphStyle(name='Normal', fontSize=8, fontName='DejaVuSans')
@@ -121,7 +129,7 @@ def PrintEntry(data, run):
   lst.append(Paragraph(run['nice_name'], subHeadingStyle))
   lst.append(Table(entry, style=style, repeatRows=1))
 
-  Print(lst)
+  Print(lst, run['day'])
 
 def GetStartTable(start, run):
   table = []
@@ -166,7 +174,7 @@ def PrintStart(data, run):
   lst.append(Paragraph(run['nice_name'], subHeadingStyle))
   lst.append(Table(start, style=style, repeatRows=1))
 
-  Print(lst)
+  Print(lst, run['day'])
 
 def GetSquadResultsTable(results):
   table = []
@@ -302,7 +310,7 @@ def PrintResults(data, run):
   lst.append(Spacer(1, 0.2*cm))
   lst.append(results)
 
-  Print(lst)
+  Print(lst, run['day'])
 
 def PrintCerts(data, run_name, count):
   lst = []
@@ -432,7 +440,7 @@ def PrintSums(data, runs):
   lst.append(Paragraph(' + '.join([x['nice_name'] for x in runs]), subHeadingStyle))
   lst.append(table)
 
-  Print(lst)
+  Print(lst, runs[0]['day'])
 
 class MyTemplate(PageTemplate):
   def __init__(self, params, pageSize=pagesizes.landscape(pagesizes.A4)):
@@ -450,7 +458,7 @@ class MyTemplate(PageTemplate):
   def afterDrawPage(self, canvas, doc):
     canvas.saveState()
     canvas.setFont("DejaVuSans", 8)
-    canvas.drawString(cm, self.pageHeight - 1*cm, self.params['comp_name'])
+    canvas.drawString(cm, self.pageHeight - 1*cm, self.params['competition_name'])
     canvas.drawRightString(self.pageWidth - 1*cm, self.pageHeight - 1*cm, self.params['date'])
     canvas.restoreState()
 
@@ -467,21 +475,36 @@ class PlainTemplate(PageTemplate):
 
 
 def PrintPlain(doc):
-  c = BaseDocTemplate("output.pdf", pageTemplates=[PlainTemplate()], pagesize=pagesizes.A4)
+  filename = tempfile.mktemp(".pdf")
+  c = BaseDocTemplate(filename, pageTemplates=[PlainTemplate()], pagesize=pagesizes.A4)
   c.build(doc)
-  p = subprocess.Popen(['lpr', '-o landscape', 'output.pdf'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  res = p.communicate()
-  if p.poll() != 0:
-    wx.MessageBox('\n'.join(list(res)), "Tisk")
+  PrintFile(filename)
 
-def Print(doc):
-  Client().Get(("param", "competition_name"), lambda r: _gotCompName(doc, r))
+def PrintFile(filename):
+  if platform.system() == 'Linux':
+    p = subprocess.Popen(['lpr', '-o landscape', filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    res = p.communicate()
+    if p.poll() != 0:
+      wx.MessageBox('\n'.join(list(res)), "Tisk")
+  elif platform.system() == 'Windows':
+    win32api.ShellExecute(
+      0,
+      "print",
+      filename,
+      '/d:"%s"' % win32print.GetDefaultPrinter(),
+      ".",
+      0)
 
-def _gotCompName(doc, comp_name):
-  params = {'comp_name': comp_name['value'], 'date': strftime(locale.nl_langinfo(locale.D_FMT))}
-  c = BaseDocTemplate("output.pdf", pageTemplates=[MyTemplate(params)], pagesize=pagesizes.landscape(pagesizes.A4), rightMargin=1*cm,leftMargin=1*cm, topMargin=1*cm, bottomMargin=1*cm)
+
+@inlineCallbacks
+def Print(doc, day = 1):
+  params = yield Client().sGet(("params", None))
+  params['date'] = (params['date_from'] + timedelta(day-1)).strftime("%x")
+  filename = tempfile.mktemp(".pdf")
+  c = BaseDocTemplate(filename,
+                      pageTemplates=[MyTemplate(params)],
+                      pagesize=pagesizes.landscape(pagesizes.A4),
+                      rightMargin=1*cm,leftMargin=1*cm, topMargin=1*cm, bottomMargin=1*cm)
   c.build(doc)
-  p = subprocess.Popen(['lpr', '-o landscape', 'output.pdf'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  res = p.communicate()
-  if p.poll() != 0:
-    wx.MessageBox('\n'.join(list(res)), "Tisk")
+  PrintFile(filename)
+
