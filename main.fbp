@@ -40,7 +40,7 @@
             <property name="size">900,650</property>
             <property name="style">wxDEFAULT_FRAME_STYLE</property>
             <property name="subclass"></property>
-            <property name="title">Agility</property>
+            <property name="title">Agi</property>
             <property name="tooltip"></property>
             <property name="validator_data_type"></property>
             <property name="validator_style">wxFILTER_NONE</property>
@@ -3383,7 +3383,7 @@
             <property name="name">runDialog</property>
             <property name="pos"></property>
             <property name="size">-1,-1</property>
-            <property name="style">wxCAPTION|wxCLOSE_BOX</property>
+            <property name="style">wxDEFAULT_DIALOG_STYLE</property>
             <property name="subclass"></property>
             <property name="title"></property>
             <property name="tooltip"></property>
@@ -5570,16 +5570,16 @@
                                 <property name="border">5</property>
                                 <property name="flag">wxEXPAND</property>
                                 <property name="proportion">1</property>
-                                <object class="wxBoxSizer" expanded="0">
+                                <object class="wxBoxSizer" expanded="1">
                                     <property name="minimum_size">-1,-1</property>
                                     <property name="name">bSizer68</property>
                                     <property name="orient">wxVERTICAL</property>
                                     <property name="permission">none</property>
-                                    <object class="sizeritem" expanded="0">
+                                    <object class="sizeritem" expanded="1">
                                         <property name="border">5</property>
                                         <property name="flag">wxALL|wxEXPAND</property>
                                         <property name="proportion">1</property>
-                                        <object class="wxStaticBoxSizer" expanded="0">
+                                        <object class="wxStaticBoxSizer" expanded="1">
                                             <property name="id">wxID_ANY</property>
                                             <property name="label">Řazení podle výsledků jiného běhu</property>
                                             <property name="minimum_size"></property>
@@ -8055,7 +8055,7 @@
             <property name="size">-1,-1</property>
             <property name="style">wxCAPTION|wxCLOSE_BOX|wxDIALOG_NO_PARENT</property>
             <property name="subclass"></property>
-            <property name="title">Agility</property>
+            <property name="title">Agi</property>
             <property name="tooltip"></property>
             <property name="validator_data_type"></property>
             <property name="validator_style">wxFILTER_NONE</property>

@@ -11,7 +11,7 @@ if platform.system() == "Windows":
 
 setup(name="agi",
     version=VERSION,
-    scripts=["agility.py"],
+    scripts=["agility.pyw"],
     data_files=["agility.xrc", ("images", glob("images/*")), "default.db", ("fonts", glob("fonts/*"))],
     options={"bdist_esky":{"freezer_module":"bbfreeze","bundle_msvcrt":True, "includes":includes}}
     )

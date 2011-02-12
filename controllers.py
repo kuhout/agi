@@ -28,6 +28,7 @@ class DefaultController:
     self._fieldWidgets = {}
     self._reactiveWidgets = []
     self.dialog.Bind(wx.EVT_BUTTON, self.OnDialogSave, id=wx.ID_SAVE)
+    self.dialog.Bind(wx.EVT_SHOW, self.OnDialogOpen)
     self.listView.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnEditObject)
     self.listView.Bind(wx.EVT_LIST_KEY_DOWN, self.OnKeyDown)
     self.dialog.SetAffirmativeId(wx.ID_SAVE)
@@ -52,9 +53,11 @@ class DefaultController:
       wgt.SetForegroundColour(wx.NullColor)
     self._dialogPostUpdate()
 
-  def _dialogPostUpdate(self):
+  def OnDialogOpen(self, evt):
+    #hackish, needed to properly size the OLVs
     w, h = self.dialog.GetSizeTuple()
     self.dialog.SetSize((w+1, h+1))
+    self.dialog.SetSize((w, h))
 
   def OnEditObject(self, evt):
     obj = self.listView.GetSelectedObject()
@@ -138,7 +141,6 @@ class TeamController(DefaultController):
 
   def _dialogPostUpdate(self):
     self.presentList.RepopulateList()
-    DefaultController._dialogPostUpdate(self)
 
   def UpdateBreeds(self):
     Client().Get(("breeds", None), self._gotBreeds)
@@ -222,7 +224,13 @@ class TeamController(DefaultController):
     dayselect.SetSelection(0)
 
   def _initList(self):
+    def rowFormatter(item, team):
+      day = self.panel.FindWindowByName("teamDaySelect").GetSelection()
+      if not (team['registered'] & (1<<day)) or not team['confirmed']:
+        item.SetBackgroundColour((255, 150, 150))
+
     self.listView.cellEditMode = ObjectListView.CELLEDIT_NONE
+    self.listView.rowFormatter = rowFormatter
     self.listView.SetColumns([
       ColumnDefn(u"Přítomen", fixedWidth=24, checkStateGetter=self.GetPresenceFromList, checkStateSetter=self.SetPresenceFromList),
       ColumnDefn(u"Číslo", "center", 60, "start_num"),
@@ -252,9 +260,11 @@ class TeamController(DefaultController):
 
     for name in ['handler_name', 'handler_surname', 'dog_name']:
       wgt(name).SetValidator(OAV.ObjectAttrTextValidator(None, name, None, True))
-    for name in ['osa', 'number', 'dog_kennel', 'dog_nick', 'paid']:
+    for name in ['osa', 'number', 'dog_kennel', 'dog_nick']:
       wgt(name).SetValidator(OAV.ObjectAttrTextValidator(None, name, None, False))
 
+    validator = OAV.ObjectAttrTextValidator(None, 'paid', FloatFormatter(), False)
+    wgt('paid').SetValidator(validator)
     validator = OAV.ObjectAttrSelectorValidator(None, 'category', GetFormatter('category'), True)
     wgt('category').SetValidator(validator)
     validator = OAV.ObjectAttrSelectorValidator(None, 'size', GetFormatter('size'), True)
@@ -329,7 +339,6 @@ class RunController(DefaultController):
 
   def _dialogPostUpdate(self):
     self.breedList.RepopulateList()
-    DefaultController._dialogPostUpdate(self)
 
   def _initList(self):
     self.listView.cellEditMode = ObjectListView.CELLEDIT_NONE
@@ -497,9 +506,6 @@ class RunController(DefaultController):
       category.Disable()
       category.SetSelection(wx.NOT_FOUND)
 
-  def OnDialogOpen(self, evt):
-    pass
-
   def OnEditObject(self, evt):
     gen = self.dialog.FindWindowByName("generateRuns")
     gen.SetValue(False)
@@ -663,6 +669,9 @@ class EntryController(DefaultController):
 
     self.timer = wx.Timer(self.panel)
     self.timer.Start(100)
+
+  def _dialogPostUpdate(self):
+    pass
 
   def OnConnectAdvancedStopwatch(self, evt):
     self.ConnectStopwatch(stopwatch.AdvancedStopwatchThread)

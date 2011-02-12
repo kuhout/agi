@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-VERSION="0.9.1"
+VERSION="0.9.3.1"
+URL="http://intersol.cz/agi/downloads/dir-generator.php"
 
 import db
 import platform
 import wx
 import locale
 import ObjectListView as OLV
-import subprocess
 import sys
 import datetime
 import esky
@@ -20,6 +20,7 @@ from controllers import *
 import stopwatch
 import network
 import csvexport
+import threading
 from datetime import date
 
 from twisted.internet import reactor, protocol
@@ -36,6 +37,8 @@ class App(wx.App):
       locale.setlocale(locale.LC_ALL, 'czech')
     self.locale = wx.Locale(wx.LANGUAGE_CZECH)
 
+    up = threading.Thread(target=self._checkForUpdates)
+    up.run()
     self.res = xrc.XmlResource('agility.xrc')
     self.frame = self.res.LoadFrame(None, 'mainFrame')
     self.teamDialog = self.res.LoadDialog(self.frame, 'teamDialog')
@@ -63,6 +66,20 @@ class App(wx.App):
     if self.startupDialog.ShowModal() == wx.ID_CANCEL:
       self.OnClose()
     return True
+
+  def _checkForUpdates(self):
+    if hasattr(sys, "frozen"):
+      app = esky.Esky(sys.executable, URL)
+      try:
+        if app.find_update():
+          wx.PostEvent(self, network.CallbackEvent(self._applyUpdate))
+      except Exception, e:
+        pass
+
+  def _applyUpdate(self):
+   if wx.MessageBox(u"K dispozici je nová verze. Chcete ji nyní stáhnout a nainstalovat?", u"Nová verze", wx.YES_NO) == wx.YES:
+      app = esky.Esky(sys.executable, URL)
+      app.auto_update()
 
   def OnAbout(self, evt=None):
     info = wx.AboutDialogInfo()

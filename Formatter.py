@@ -170,12 +170,12 @@ class FloatFormatter( Formatter ):
           return ""
         if not value:
           value = 0.0
-        return re.sub(r'\.', ',', "%.2f" % value)
+        return re.sub(r'\.', ',', "%.2f" % float(value))
 
 
     def coerce( self, value ):
         """Convert a string from the UI into a storable value."""
-        return float(re.sub(r'\,', '.', value))
+        return float(re.sub(r'\,', '.', value) or 0)
 
 
 class BoolFormatter( Formatter ):

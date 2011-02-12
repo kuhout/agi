@@ -33,6 +33,8 @@ class Team(Entity):
   size = Field(Integer, default=0)
   present = Field(Integer, default=0)
   paid = Field(Unicode(50), default=u"")
+  registered = Field(Integer, default=0)
+  confirmed = Field(Integer, default=0)
   def_sort = Field(Integer, default=0)
   results = OneToMany('Result')
   sorts = OneToMany('Sort')
@@ -694,9 +696,24 @@ def GetSums(runs):
 
 def ImportTeams(data):
   for r in data:
-    print r
-    t = Team(number=r[0], handler_name=r[1], handler_surname=r[2], dog_name=r[3], dog_kennel=r[4], size=GetFormatter("size").coerce(r[6]), osa=r[7], dog_nick=r[9], category=GetFormatter("category").coerce(r[10]))
+    registered = 0
+    for d in r[15].split(", "):
+      a = 1 << int(d) - 1
+      registered = registered | a
+    t = Team(number=r[0],
+             handler_name=r[1],
+             handler_surname=r[2],
+             dog_name=r[3],
+             dog_kennel=r[4],
+             size=GetFormatter("size").coerce(r[6]),
+             osa=r[7],
+             dog_nick=r[9],
+             category=GetFormatter("category").coerce(r[10]),
+             confirmed=GetFormatter("yes_no").coerce(r[13]),
+             paid=FloatFormatter().coerce(r[14]),
+             registered=registered)
     t.SetBreed(r[5])
   session.commit()
+  print "done"
   return ServerCache().InvalidateAll(exc=[('runs', None)])
 
