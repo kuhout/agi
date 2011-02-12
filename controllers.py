@@ -295,7 +295,6 @@ class TeamController(DefaultController):
       self.obj['dog_breed_id'] = int(xml.findtext('dog/breed/id'))
       self.obj['size'] = GetFormatter('size').coerce(xml.findtext('dog/size'))
       self.obj['category'] = None
-      self.obj['present'] = 1
       self._updateValidators()
     else:
       wx.MessageBox(u"Průkaz nenalezen.\nZkontrolujte, zda jste správně zadali číslo.", "Chyba")

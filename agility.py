@@ -83,7 +83,7 @@ class App(wx.App):
 
   def OnAbout(self, evt=None):
     info = wx.AboutDialogInfo()
-    info.Name = "Agility"
+    info.Name = "Agi"
     info.Version = VERSION
     #info.Copyright = "(C) 2011"
     info.WebSite = ("http://www.kacr.info", "www.kacr.info")
