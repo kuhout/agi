@@ -178,7 +178,6 @@ class Client(object):
     wx.PostEvent(self.notify, ReloadEvent(value[0][0], value[0][1]))
 
   def InvalidateCache(self, values):
-    print(values)
     for value in values:
       if value in self.cache.keys():
         del self.cache[value]
@@ -200,7 +199,6 @@ class ServerResponder(pb.Root):
 
   def remote_import_teams(self, teams):
     u = db.ImportTeams(teams)
-    print(u)
     self._invalidate_remote_caches(u)
 
   def remote_sget(self, what):
@@ -301,7 +299,6 @@ class ServerResponder(pb.Root):
       self._clientCall('update_cache', value)
 
   def _invalidate_remote_caches(self, values):
-    print("invalidating ", values)
     self._clientCall('invalidate_cache', values)
 
   def remote_create(self, what):

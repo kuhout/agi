@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-VERSION="0.9.3.1"
+VERSION="0.9.3.2"
 URL="http://intersol.cz/agi/downloads/dir-generator.php"
 
 import db
