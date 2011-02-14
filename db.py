@@ -714,6 +714,5 @@ def ImportTeams(data):
              registered=registered)
     t.SetBreed(r[5])
   session.commit()
-  print "done"
   return ServerCache().InvalidateAll(exc=[('runs', None)])
 
