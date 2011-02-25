@@ -176,6 +176,28 @@ def PrintStart(data, run):
 
   Print(lst, run['day'])
 
+def PrintRuns(data, day):
+  lst = []
+
+  for d in data:
+    run, l = d
+    start = GetStartTable(l, run)
+    style = TableStyle([
+      ('GRID', (0,0), (-1,-1), 0.25, colors.black),
+      ('FONT', (0,0), (-1,-1), "DejaVuSans"),
+      ('FONTSIZE', (0,1), (-1,-1), 8),
+      ('FONT', (0,0), (-1, 0), "DejaVuSans-Bold"),
+      ('ALIGN', (0,0), (-1,0), 'CENTER'),
+      ('VALIGN', (0,0), (-1,-1), 'TOP'),
+      ])
+
+    lst.append(Paragraph(u"Startovní listina", headingStyle))
+    lst.append(Paragraph(run['nice_name'], subHeadingStyle))
+    lst.append(Table(start, style=style, repeatRows=1))
+    lst.append(PageBreak())
+
+  Print(lst, day)
+
 def GetSquadResultsTable(results):
   table = []
 
@@ -506,5 +528,6 @@ def Print(doc, day = 1):
                       pagesize=pagesizes.landscape(pagesizes.A4),
                       rightMargin=1*cm,leftMargin=1*cm, topMargin=1*cm, bottomMargin=1*cm)
   c.build(doc)
+  print("printing")
   PrintFile(filename)
 

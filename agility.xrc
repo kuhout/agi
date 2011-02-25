@@ -103,7 +103,7 @@
 											</object>
 											<object class="sizeritem">
 												<option>0</option>
-												<flag>wxALL</flag>
+												<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
 												<border>5</border>
 												<object class="wxChoice" name="teamDaySelect">
 													<selection>0</selection>
@@ -167,6 +167,33 @@
 										<border>5</border>
 										<object class="wxBoxSizer">
 											<orient>wxHORIZONTAL</orient>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+												<border>5</border>
+												<object class="wxStaticText" name="m_staticText46">
+													<label>Den pro souhrnný tisk:</label>
+													<wrap>-1</wrap>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+												<border>5</border>
+												<object class="wxChoice" name="runDaySelect">
+													<selection>0</selection>
+													<content />
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="printRuns">
+													<label>Tisk předběžných startovních listin</label>
+													<default>0</default>
+												</object>
+											</object>
 											<object class="spacer">
 												<option>1</option>
 												<flag>wxEXPAND</flag>

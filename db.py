@@ -351,13 +351,20 @@ def GetSquads(run_id=None):
       squads.remove(s)
   return squads
 
-def GetStartList(run_id, includeRemoved=False):
+def GetStartList(run_id, includeRemoved=False, includeNotPresent=False):
   run = Run.get_by(id=run_id)
   if run:
     breeds = BreedFilter.query.filter_by(run=run).all()
     sq = aliased(Result, Result.query.filter_by(run=run).subquery())
     sort = aliased(Sort, Sort.query.filter_by(run=run).subquery())
-    query = Team.query.filter_by(size=run.size).filter(Team.table.c.present.op('&')(1 << (run.day - 1)))
+    query = Team.query.filter_by(size=run.size)
+
+    if includeNotPresent:
+      query = query.filter(Team.table.c.registered.op('&')(1 << (run.day - 1)))
+      query = query.filter(Team.table.c.confirmed)
+    else:
+      query = query.filter(Team.table.c.present.op('&')(1 << (run.day - 1)))
+
     if len(breeds):
       query = query.filter(Team.table.c.dog_breed_id.in_([b.breed_id for b in breeds]))
     if run.variant == 0:

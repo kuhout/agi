@@ -223,9 +223,11 @@ class ServerResponder(pb.Root):
     elif what[0] == 'run_times':
       call = lambda: db.GetRunTimes(what[1])
     elif what[0] == 'start_list':
-      call = lambda: db.GetStartList(what[1], False)
+      call = lambda: db.GetStartList(what[1], includeRemoved=False)
     elif what[0] == 'start_list_with_removed':
-      call = lambda: db.GetStartList(what[1], True)
+      call = lambda: db.GetStartList(what[1], includeRemoved=True)
+    elif what[0] == 'start_list_with_not_present':
+      call = lambda: db.GetStartList(what[1], includeRemoved=False, includeNotPresent=True)
     else:
       return (what, None)
 

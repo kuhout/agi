@@ -328,6 +328,7 @@ class RunController(DefaultController):
 
     self.panel.Bind(wx.EVT_BUTTON, self.OnNewObject, id=xrc.XRCID('newRun'))
     self.panel.Bind(wx.EVT_BUTTON, self.OnDeleteObject, id=xrc.XRCID('deleteRun'))
+    self.panel.Bind(wx.EVT_BUTTON, self.OnPrintRuns, id=xrc.XRCID('printRuns'))
     self.panel.GetParent().GetParent().Bind(wx.EVT_CHOICE, self.OnRunChoice, id=xrc.XRCID('runChooser'))
     self.dialog.Bind(wx.EVT_CHOICE, self.OnDialogTimeCalc, id=xrc.XRCID('time_calc'))
     self.dialog.Bind(wx.EVT_SHOW, self.OnDialogOpen)
@@ -344,6 +345,26 @@ class RunController(DefaultController):
     self.UpdateDialogBreedList()
     self.UpdateRunChooser()
     self.UpdateDialogSortList()
+    self.UpdateRunDaySelect()
+
+  @inlineCallbacks
+  def OnPrintRuns(self, evt):
+    day = self.panel.FindWindowByName("runDaySelect").GetSelection()
+    runs = yield Client().sGet(("runs", None))
+    lists = []
+    for run in runs:
+      if run["day"] == day + 1:
+        l = yield Client().sGet(("start_list_with_not_present", run['id']))
+        lists.append((run, l))
+    printing.PrintRuns(lists, day)
+
+  @inlineCallbacks
+  def UpdateRunDaySelect(self):
+    params = yield Client().sGet(("params", None))
+    days = range(1, abs((params['date_to'] - params['date_from']).days) + 2)
+    dayselect = self.panel.FindWindowByName("runDaySelect")
+    dayselect.SetItems(map(lambda x: str(x), days))
+    dayselect.SetSelection(0)
 
   def _dialogPostUpdate(self):
     self.breedList.RepopulateList()
