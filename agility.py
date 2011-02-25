@@ -175,6 +175,7 @@ class App(wx.App):
     self.settingsController = SettingsController(self.competitionSettingsDialog)
 
     self.frame.Bind(wx.EVT_MENU, self.teamController.OnRandomizeStartNums, id=xrc.XRCID("randomizeStartNums"))
+    self.frame.Bind(wx.EVT_MENU, self.teamController.OnRandomizeStartNumsWithCats, id=xrc.XRCID("randomizeStartNumsWithCats"))
     self.frame.Bind(wx.EVT_MENU, self.settingsController.OnCompetitionSettings, id=xrc.XRCID("competitionSettings"))
     self.frame.Bind(wx.EVT_MENU, self.teamController.OnImportTeams, id=xrc.XRCID("importTeams"))
     self.frame.Bind(wx.EVT_MENU, self.entryController.OnConnectSimpleStopwatch, id=xrc.XRCID("connectSimpleStopwatch"))

@@ -1,1 +1,1922 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes" ?><resource xmlns="http://www.wxwindows.org/wxxrc" version="2.3.0.1">	<object class="wxFrame" name="mainFrame">		<style>wxDEFAULT_FRAME_STYLE|wxCLIP_CHILDREN|wxTAB_TRAVERSAL</style>		<size>900,650</size>		<title>Agi</title>		<centered>1</centered>		<object class="wxPanel" name="m_panel10">			<style>wxTAB_TRAVERSAL</style>			<object class="wxBoxSizer">				<orient>wxVERTICAL</orient>				<object class="sizeritem">					<option>0</option>					<flag>wxALL|wxEXPAND</flag>					<border>5</border>					<object class="wxBoxSizer">						<orient>wxHORIZONTAL</orient>						<object class="sizeritem">							<option>0</option>							<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>							<border>5</border>							<object class="wxStaticText" name="m_staticText45">								<label>Aktivní běh:</label>								<wrap>-1</wrap>							</object>						</object>						<object class="sizeritem">							<option>1</option>							<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>							<border>5</border>							<object class="wxChoice" name="runChooser">								<selection>0</selection>								<content />							</object>						</object>						<object class="sizeritem">							<option>0</option>							<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>							<border>5</border>							<object class="wxStaticText" name="runInfo">								<label></label>								<wrap>-1</wrap>							</object>						</object>						<object class="spacer">							<option>2</option>							<flag>wxEXPAND</flag>							<border>5</border>							<size>0,0</size>						</object>						<object class="sizeritem">							<option>0</option>							<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>							<border>5</border>							<object class="wxStaticText" name="stopwatchTime">								<font>									<size>22</size>									<family>swiss</family>									<style>normal</style>									<weight>normal</weight>									<underlined>0</underlined>									<face>Sans</face>								</font>								<label>0:00:00</label>								<wrap>-1</wrap>							</object>						</object>					</object>				</object>				<object class="sizeritem">					<option>1</option>					<flag>wxEXPAND | wxALL</flag>					<border>5</border>					<object class="wxNotebook" name="notebook">						<object class="notebookpage">							<label>Týmy</label>							<selected>1</selected>							<object class="wxPanel" name="teamPanel">								<style>wxTAB_TRAVERSAL</style>								<object class="wxBoxSizer">									<orient>wxVERTICAL</orient>									<object class="sizeritem">										<option>1</option>										<flag>wxALL|wxEXPAND</flag>										<border>5</border>										<object class="unknown" name="teamList" />									</object>									<object class="sizeritem">										<option>0</option>										<flag>wxEXPAND</flag>										<border>5</border>										<object class="wxBoxSizer">											<orient>wxHORIZONTAL</orient>											<object class="sizeritem">												<option>0</option>												<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>												<border>5</border>												<object class="wxStaticText" name="m_staticText51">													<label>Den pro prezenci:</label>													<wrap>-1</wrap>												</object>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALL</flag>												<border>5</border>												<object class="wxChoice" name="teamDaySelect">													<selection>0</selection>													<content />												</object>											</object>											<object class="spacer">												<option>1</option>												<flag>wxEXPAND</flag>												<border>5</border>												<size>0,0</size>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALL</flag>												<border>5</border>												<object class="wxButton" name="printTeams">													<label>Tisk</label>													<default>0</default>												</object>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALL</flag>												<border>5</border>												<object class="wxButton" name="deleteTeam">													<label>Smazat tým</label>													<default>0</default>												</object>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALL</flag>												<border>5</border>												<object class="wxButton" name="newTeam">													<label>Přidat tým</label>													<default>0</default>												</object>											</object>										</object>									</object>								</object>							</object>						</object>						<object class="notebookpage">							<label>Běhy</label>							<selected>0</selected>							<object class="wxPanel" name="runPanel">								<style>wxTAB_TRAVERSAL</style>								<object class="wxBoxSizer">									<orient>wxVERTICAL</orient>									<object class="sizeritem">										<option>1</option>										<flag>wxALL|wxEXPAND</flag>										<border>5</border>										<object class="unknown" name="runList" />									</object>									<object class="sizeritem">										<option>0</option>										<flag>wxEXPAND</flag>										<border>5</border>										<object class="wxBoxSizer">											<orient>wxHORIZONTAL</orient>											<object class="spacer">												<option>1</option>												<flag>wxEXPAND</flag>												<border>5</border>												<size>0,0</size>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALL</flag>												<border>5</border>												<object class="wxButton" name="deleteRun">													<label>Smazat běh</label>													<default>0</default>												</object>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALL</flag>												<border>5</border>												<object class="wxButton" name="newRun">													<label>Přidat běh</label>													<default>0</default>												</object>											</object>										</object>									</object>								</object>							</object>						</object>						<object class="notebookpage">							<label>Startovní listiny</label>							<selected>0</selected>							<object class="wxPanel" name="startPanel">								<style>wxTAB_TRAVERSAL</style>								<object class="wxBoxSizer">									<orient>wxVERTICAL</orient>									<object class="sizeritem">										<option>1</option>										<flag>wxALL|wxEXPAND</flag>										<border>5</border>										<object class="unknown" name="startList" />									</object>									<object class="sizeritem">										<option>0</option>										<flag>wxEXPAND</flag>										<border>5</border>										<object class="wxBoxSizer">											<orient>wxHORIZONTAL</orient>											<object class="spacer">												<option>1</option>												<flag>wxEXPAND</flag>												<border>5</border>												<size>0,0</size>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALL</flag>												<border>5</border>												<object class="wxButton" name="printStart">													<label>Tisk</label>													<default>0</default>												</object>											</object>										</object>									</object>								</object>							</object>						</object>						<object class="notebookpage">							<label>Zápis</label>							<selected>0</selected>							<object class="wxPanel" name="entryPanel">								<style>wxTAB_TRAVERSAL|wxWANTS_CHARS</style>								<object class="wxBoxSizer">									<orient>wxVERTICAL</orient>									<object class="sizeritem">										<option>0</option>										<flag>wxEXPAND</flag>										<border>5</border>										<object class="wxBoxSizer">											<orient>wxHORIZONTAL</orient>											<object class="spacer">												<option>1</option>												<flag>wxEXPAND</flag>												<border>5</border>												<size>0,0</size>											</object>											<object class="sizeritem">												<option>3</option>												<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>												<border>5</border>												<object class="wxBoxSizer">													<orient>wxVERTICAL</orient>													<object class="sizeritem">														<option>0</option>														<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>														<border>5</border>														<object class="wxStaticText" name="handler">															<style>wxALIGN_LEFT</style>															<label></label>															<wrap>-1</wrap>														</object>													</object>													<object class="sizeritem">														<option>0</option>														<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>														<border>5</border>														<object class="wxStaticText" name="dog">															<style>wxALIGN_LEFT</style>															<label></label>															<wrap>-1</wrap>														</object>													</object>												</object>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxEXPAND|wxLEFT|wxRIGHT</flag>												<border>5</border>												<object class="wxBoxSizer">													<orient>wxVERTICAL</orient>													<object class="sizeritem">														<option>0</option>														<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>														<border>5</border>														<object class="wxStaticText" name="m_staticText390">															<label>Ch_yby</label>															<wrap>-1</wrap>														</object>													</object>													<object class="sizeritem">														<option>0</option>														<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>														<border>5</border>														<object class="unknown" name="mistakes" />													</object>												</object>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxEXPAND|wxLEFT|wxRIGHT</flag>												<border>5</border>												<object class="wxBoxSizer">													<orient>wxVERTICAL</orient>													<object class="sizeritem">														<option>0</option>														<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>														<border>5</border>														<object class="wxStaticText" name="m_staticText391">															<label>_Odmítnutí</label>															<wrap>-1</wrap>														</object>													</object>													<object class="sizeritem">														<option>0</option>														<flag>wxALL</flag>														<border>5</border>														<object class="unknown" name="refusals" />													</object>												</object>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxEXPAND</flag>												<border>5</border>												<object class="wxBoxSizer">													<orient>wxVERTICAL</orient>													<object class="sizeritem">														<option>0</option>														<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>														<border>5</border>														<object class="wxStaticText" name="m_staticText392">															<label>Č_as</label>															<wrap>-1</wrap>														</object>													</object>													<object class="sizeritem">														<option>0</option>														<flag>wxALL|wxEXPAND</flag>														<border>5</border>														<object class="wxTextCtrl" name="time">															<style>wxTE_PROCESS_ENTER|wxWANTS_CHARS</style>															<value></value>															<maxlength>0</maxlength>														</object>													</object>												</object>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>												<border>5</border>												<object class="wxCheckBox" name="disqualified">													<style>wxWANTS_CHARS</style>													<label>_Diskvalifikován</label>													<checked>0</checked>												</object>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>												<border>5</border>												<object class="wxBitmapButton" name="getTime">													<style>wxBU_AUTODRAW</style>													<enabled>0</enabled>													<bitmap>images/clock.png</bitmap>													<disabled>images/clock-disabled.png</disabled>													<default>0</default>												</object>											</object>											<object class="spacer">												<option>1</option>												<flag>wxEXPAND</flag>												<border>5</border>												<size>0,0</size>											</object>										</object>									</object>									<object class="sizeritem">										<option>1</option>										<flag>wxALL|wxEXPAND</flag>										<border>5</border>										<object class="unknown" name="entryList" />									</object>									<object class="sizeritem">										<option>0</option>										<flag>wxEXPAND</flag>										<border>5</border>										<object class="wxBoxSizer">											<orient>wxHORIZONTAL</orient>											<object class="spacer">												<option>1</option>												<flag>wxEXPAND</flag>												<border>5</border>												<size>0,0</size>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALL</flag>												<border>5</border>												<object class="wxButton" name="printEntry">													<label>Tisk</label>													<default>0</default>												</object>											</object>										</object>									</object>								</object>							</object>						</object>						<object class="notebookpage">							<label>Výsledky</label>							<selected>0</selected>							<object class="wxPanel" name="resultPanel">								<style>wxTAB_TRAVERSAL</style>								<object class="wxBoxSizer">									<orient>wxVERTICAL</orient>									<object class="sizeritem">										<option>1</option>										<flag>wxALL|wxEXPAND</flag>										<border>5</border>										<object class="unknown" name="resultList" />									</object>									<object class="sizeritem">										<option>0</option>										<flag>wxEXPAND</flag>										<border>5</border>										<object class="wxBoxSizer">											<orient>wxHORIZONTAL</orient>											<object class="sizeritem">												<option>0</option>												<flag>wxALL</flag>												<border>5</border>												<object class="wxButton" name="printCerts">													<label>Tisk diplomů</label>													<default>0</default>												</object>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>												<border>5</border>												<object class="wxSpinCtrl" name="certCount">													<style>wxSP_ARROW_KEYS</style>													<value>3</value>													<min>1</min>													<max>10</max>												</object>											</object>											<object class="spacer">												<option>1</option>												<flag>wxEXPAND</flag>												<border>5</border>												<size>0,0</size>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALL</flag>												<border>5</border>												<object class="wxButton" name="exportResults">													<label>Export</label>													<default>0</default>												</object>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALL</flag>												<border>5</border>												<object class="wxButton" name="printResults">													<label>Tisk</label>													<default>0</default>												</object>											</object>										</object>									</object>								</object>							</object>						</object>						<object class="notebookpage">							<label>Součty</label>							<selected>0</selected>							<object class="wxPanel" name="sumsPanel">								<style>wxTAB_TRAVERSAL</style>								<object class="wxBoxSizer">									<orient>wxVERTICAL</orient>									<object class="sizeritem">										<option>1</option>										<flag>wxEXPAND</flag>										<border>5</border>										<object class="wxSplitterWindow" name="m_splitter2">											<style>wxSP_3D</style>											<sashpos>0</sashpos>											<gravity>0.2</gravity>											<minsize>0</minsize>											<orientation>vertical</orientation>											<object class="wxPanel" name="m_panel7">												<style>wxTAB_TRAVERSAL</style>												<object class="wxBoxSizer">													<orient>wxHORIZONTAL</orient>													<object class="sizeritem">														<option>1</option>														<flag>wxALL|wxEXPAND</flag>														<border>5</border>														<object class="unknown" name="sumsChooser" />													</object>												</object>											</object>											<object class="wxPanel" name="m_panel8">												<style>wxTAB_TRAVERSAL</style>												<object class="wxBoxSizer">													<orient>wxHORIZONTAL</orient>													<object class="sizeritem">														<option>4</option>														<flag>wxALL|wxEXPAND</flag>														<border>5</border>														<object class="unknown" name="sumsList" />													</object>												</object>											</object>										</object>									</object>									<object class="sizeritem">										<option>0</option>										<flag>wxEXPAND</flag>										<border>5</border>										<object class="wxBoxSizer">											<orient>wxHORIZONTAL</orient>											<object class="sizeritem">												<option>0</option>												<flag>wxALL</flag>												<border>5</border>												<object class="wxButton" name="printSumsCerts">													<label>Tisk diplomů</label>													<default>0</default>												</object>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>												<border>5</border>												<object class="wxSpinCtrl" name="sumsCertCount">													<style>wxSP_ARROW_KEYS</style>													<value>3</value>													<min>1</min>													<max>10</max>												</object>											</object>											<object class="spacer">												<option>1</option>												<flag>wxEXPAND</flag>												<border>5</border>												<size>0,0</size>											</object>											<object class="sizeritem">												<option>0</option>												<flag>wxALL</flag>												<border>5</border>												<object class="wxButton" name="printSums">													<label>Tisk</label>													<default>0</default>												</object>											</object>										</object>									</object>								</object>							</object>						</object>					</object>				</object>			</object>		</object>		<object class="wxStatusBar" name="m_statusBar1">			<style>wxST_SIZEGRIP</style>			<fields>1</fields>		</object>		<object class="wxMenuBar" name="menubar">			<label>MyMenuBar</label>			<object class="wxMenu" name="fileMenu">				<label>Soubor</label>				<object class="wxMenuItem" name="importTeams">					<label>Import týmů z kacr.info</label>					<help></help>				</object>				<object class="wxMenuItem" name="csvExport">					<label>Export výsledků pro kacr.info</label>					<help></help>				</object>				<object class="wxMenuItem" name="competitionSettings">					<label>Parametry závodu</label>					<help></help>				</object>				<object class="separator" />				<object class="wxMenuItem" name="randomizeStartNums">					<label>Vygenerovat náhodná startovní čísla</label>					<help></help>				</object>				<object class="separator" />				<object class="wxMenuItem" name="aboutMenu">					<label>O programu</label>					<help></help>				</object>			</object>			<object class="wxMenu" name="stopwatchMenu">				<label>Stopky</label>				<object class="wxMenuItem" name="connectSimpleStopwatch">					<label>Připojit TRV-2007</label>					<help></help>				</object>				<object class="wxMenuItem" name="connectAdvancedStopwatch">					<label>Připojit TRV-2010</label>					<help></help>				</object>			</object>		</object>	</object>	<object class="wxDialog" name="runDialog">		<style>wxDEFAULT_DIALOG_STYLE|wxTAB_TRAVERSAL</style>		<title></title>		<centered>1</centered>		<object class="wxBoxSizer">			<orient>wxVERTICAL</orient>			<object class="sizeritem">				<option>0</option>				<flag>wxEXPAND</flag>				<border>5</border>				<object class="wxPanel" name="m_panel9">					<style>wxTAB_TRAVERSAL</style>					<object class="wxBoxSizer">						<orient>wxHORIZONTAL</orient>						<object class="sizeritem">							<option>1</option>							<flag></flag>							<border>5</border>							<object class="wxBoxSizer">								<orient>wxVERTICAL</orient>								<object class="sizeritem">									<option>0</option>									<flag>wxALL|wxEXPAND</flag>									<border>5</border>									<object class="wxStaticBoxSizer">										<orient>wxVERTICAL</orient>										<label>Parametry</label>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText111">														<label>Název běhu:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxTextCtrl" name="name">														<value></value>														<maxlength>0</maxlength>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>0</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText1">														<label>Délka:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>4</option>													<flag>wxALL</flag>													<border>5</border>													<object class="wxTextCtrl" name="length">														<style>wxTE_RIGHT</style>														<value></value>														<maxlength>0</maxlength>													</object>												</object>												<object class="sizeritem">													<option>1</option>													<flag>wxALIGN_CENTER_VERTICAL|wxBOTTOM|wxRIGHT|wxTOP</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText40">														<label>m</label>														<wrap>-1</wrap>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>0</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText12">														<label>Počet překážek:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL</flag>													<border>5</border>													<object class="wxTextCtrl" name="hurdles">														<style>wxTE_RIGHT</style>														<value></value>														<maxlength>0</maxlength>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>0</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText11">														<label>Typ:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL</flag>													<border>5</border>													<object class="wxChoice" name="variant">														<selection>0</selection>														<content />													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText113">														<label>Varianta:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL</flag>													<border>5</border>													<object class="wxChoice" name="style">														<selection>0</selection>														<content />													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>0</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText14">														<label>Velikost:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL|wxEXPAND</flag>													<border>5</border>													<object class="wxChoice" name="size">														<selection>0</selection>														<content />													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>0</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText112">														<label>Kategorie:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL|wxEXPAND</flag>													<border>5</border>													<object class="wxChoice" name="category">														<selection>0</selection>														<content />													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText1112">														<label>Družstva:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL</flag>													<border>5</border>													<object class="wxChoice" name="squads">														<selection>0</selection>														<content />													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>0</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText1111">														<label>Rozhodčí:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxTextCtrl" name="judge">														<value></value>														<maxlength>0</maxlength>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText121">														<label>Den:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL</flag>													<border>5</border>													<object class="wxChoice" name="day">														<selection>0</selection>														<content />													</object>												</object>											</object>										</object>									</object>								</object>								<object class="sizeritem">									<option>0</option>									<flag>wxALL|wxEXPAND</flag>									<border>5</border>									<object class="wxStaticBoxSizer">										<orient>wxVERTICAL</orient>										<label>Čas</label>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText1121">														<label>Výpočet času:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL|wxEXPAND</flag>													<border>5</border>													<object class="wxChoice" name="time_calc">														<selection>0</selection>														<content />													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText13">														<label>Standardní:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>4</option>													<flag>wxALL</flag>													<border>5</border>													<object class="wxTextCtrl" name="time">														<style>wxTE_RIGHT</style>														<value></value>														<maxlength>0</maxlength>													</object>												</object>												<object class="sizeritem">													<option>1</option>													<flag>wxALIGN_CENTER_VERTICAL|wxBOTTOM|wxRIGHT|wxTOP</flag>													<border>5</border>													<object class="wxStaticText" name="time_suffix">														<label>s</label>														<wrap>-1</wrap>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText15">														<label>Maximální:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>4</option>													<flag>wxALL</flag>													<border>5</border>													<object class="wxTextCtrl" name="max_time">														<style>wxTE_RIGHT</style>														<value></value>														<maxlength>0</maxlength>													</object>												</object>												<object class="sizeritem">													<option>1</option>													<flag>wxALIGN_CENTER_VERTICAL|wxBOTTOM|wxRIGHT|wxTOP</flag>													<border>5</border>													<object class="wxStaticText" name="max_time_suffix">														<label>s</label>														<wrap>-1</wrap>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText151">														<label>Minimální rychlost:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>4</option>													<flag>wxALL</flag>													<border>5</border>													<object class="wxTextCtrl" name="min_speed">														<style>wxTE_RIGHT</style>														<enabled>0</enabled>														<value></value>														<maxlength>0</maxlength>													</object>												</object>												<object class="sizeritem">													<option>1</option>													<flag>wxALIGN_CENTER_VERTICAL|wxBOTTOM|wxRIGHT|wxTOP</flag>													<border>5</border>													<object class="wxStaticText" name="max_time_suffix1">														<label>m/s</label>														<wrap>-1</wrap>													</object>												</object>											</object>										</object>									</object>								</object>								<object class="sizeritem">									<option>0</option>									<flag>wxBOTTOM|wxEXPAND</flag>									<border>5</border>									<object class="wxBoxSizer">										<orient>wxVERTICAL</orient>										<object class="sizeritem">											<option>0</option>											<flag>wxALL</flag>											<border>5</border>											<object class="wxCheckBox" name="generateRuns">												<label>Vygenerovat běhy ostatních kategorií</label>												<checked>0</checked>											</object>										</object>									</object>								</object>							</object>						</object>						<object class="sizeritem">							<option>1</option>							<flag>wxEXPAND</flag>							<border>5</border>							<object class="wxBoxSizer">								<orient>wxVERTICAL</orient>								<object class="sizeritem">									<option>1</option>									<flag>wxALL|wxEXPAND</flag>									<border>5</border>									<object class="wxStaticBoxSizer">										<orient>wxVERTICAL</orient>										<label>Řazení podle výsledků jiného běhu</label>										<object class="sizeritem">											<option>1</option>											<flag>wxALL|wxEXPAND</flag>											<border>5</border>											<object class="unknown" name="sort_run_id" />										</object>									</object>								</object>								<object class="sizeritem">									<option>1</option>									<flag>wxALL|wxEXPAND</flag>									<border>5</border>									<object class="wxStaticBoxSizer">										<orient>wxVERTICAL</orient>										<label>Omezení plemen</label>										<object class="sizeritem">											<option>1</option>											<flag>wxALL|wxEXPAND</flag>											<border>5</border>											<object class="unknown" name="breedList" />										</object>									</object>								</object>								<object class="sizeritem">									<option>0</option>									<flag>wxALL|wxEXPAND|wxTOP</flag>									<border>5</border>									<object class="wxStdDialogButtonSizer">										<object class="button">											<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>											<border>5</border>											<object class="wxButton" name="wxID_SAVE">												<label>&amp;Save</label>											</object>										</object>										<object class="button">											<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>											<border>5</border>											<object class="wxButton" name="wxID_CANCEL">												<label>&amp;Cancel</label>											</object>										</object>									</object>								</object>							</object>						</object>					</object>				</object>			</object>		</object>	</object>	<object class="wxDialog" name="competitionSettingsDialog">		<style>wxDEFAULT_DIALOG_STYLE</style>		<title></title>		<centered>1</centered>		<object class="wxBoxSizer">			<orient>wxVERTICAL</orient>			<object class="sizeritem">				<option>1</option>				<flag>wxEXPAND</flag>				<border>5</border>				<object class="wxPanel" name="m_panel12">					<style>wxTAB_TRAVERSAL</style>					<object class="wxBoxSizer">						<orient>wxVERTICAL</orient>						<object class="sizeritem">							<option>1</option>							<flag>wxEXPAND</flag>							<border>5</border>							<object class="wxBoxSizer">								<orient>wxHORIZONTAL</orient>								<object class="sizeritem">									<option>3</option>									<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>									<border>5</border>									<object class="wxStaticText" name="m_staticText111">										<label>Název závodu:</label>										<wrap>-1</wrap>									</object>								</object>								<object class="sizeritem">									<option>5</option>									<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>									<border>5</border>									<object class="wxTextCtrl" name="competition_name">										<value></value>										<maxlength>0</maxlength>									</object>								</object>							</object>						</object>						<object class="sizeritem">							<option>1</option>							<flag>wxEXPAND</flag>							<border>5</border>							<object class="wxStdDialogButtonSizer">								<object class="button">									<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>									<border>5</border>									<object class="wxButton" name="wxID_SAVE">										<label>&amp;Save</label>									</object>								</object>								<object class="button">									<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>									<border>5</border>									<object class="wxButton" name="wxID_CANCEL">										<label>&amp;Cancel</label>									</object>								</object>							</object>						</object>					</object>				</object>			</object>		</object>	</object>	<object class="wxDialog" name="teamDialog">		<style>wxDEFAULT_DIALOG_STYLE|wxTAB_TRAVERSAL</style>		<title></title>		<centered>1</centered>		<object class="wxBoxSizer">			<orient>wxVERTICAL</orient>			<object class="sizeritem">				<option>0</option>				<flag>wxEXPAND</flag>				<border>5</border>				<object class="wxPanel" name="m_panel11">					<style>wxTAB_TRAVERSAL</style>					<object class="wxBoxSizer">						<orient>wxHORIZONTAL</orient>						<object class="sizeritem">							<option>1</option>							<flag>wxEXPAND</flag>							<border>0</border>							<object class="wxBoxSizer">								<orient>wxVERTICAL</orient>								<object class="sizeritem">									<option>0</option>									<flag>wxALL|wxEXPAND</flag>									<border>20</border>									<object class="wxBoxSizer">										<orient>wxHORIZONTAL</orient>										<object class="sizeritem">											<option>3</option>											<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>											<border>5</border>											<object class="wxStaticText" name="m_staticText111">												<style>wxALIGN_LEFT</style>												<label>Číslo průkazu:</label>												<wrap>-1</wrap>											</object>										</object>										<object class="sizeritem">											<option>4</option>											<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>											<border>5</border>											<object class="wxTextCtrl" name="number">												<value></value>												<maxlength>0</maxlength>											</object>										</object>										<object class="sizeritem">											<option>1</option>											<flag>wxALIGN_CENTER_VERTICAL</flag>											<border>0</border>											<object class="wxBitmapButton" name="getTeamFromWeb">												<style>wxBU_AUTODRAW</style>												<tooltip>Získat informace o průkazu z databáze kacr.info</tooltip>												<bitmap>images/world_link.png</bitmap>												<default>0</default>											</object>										</object>									</object>								</object>								<object class="sizeritem">									<option>0</option>									<flag>wxALL|wxEXPAND</flag>									<border>5</border>									<object class="wxStaticBoxSizer">										<orient>wxVERTICAL</orient>										<label>Pes</label>										<object class="sizeritem">											<option>0</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText11">														<label>Jméno:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>													<border>5</border>													<object class="wxTextCtrl" name="dog_name">														<value></value>														<maxlength>0</maxlength>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>0</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText12">														<label>Chovná stanice:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>													<border>5</border>													<object class="wxTextCtrl" name="dog_kennel">														<value></value>														<maxlength>0</maxlength>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>0</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText113">														<label>Přezdívka:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxTextCtrl" name="dog_nick">														<value></value>														<maxlength>0</maxlength>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>0</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText13">														<label>Plemeno:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL</flag>													<border>5</border>													<object class="wxChoice" name="dog_breed_id">														<selection>0</selection>														<content />													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>0</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText14">														<label>Velikost:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL|wxEXPAND</flag>													<border>5</border>													<object class="wxChoice" name="size">														<selection>0</selection>														<content />													</object>												</object>											</object>										</object>									</object>								</object>								<object class="sizeritem">									<option>0</option>									<flag>wxALL|wxEXPAND</flag>									<border>5</border>									<object class="wxStaticBoxSizer">										<orient>wxVERTICAL</orient>										<label>Průkaz:</label>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText112">														<label>Kategorie:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL|wxEXPAND</flag>													<border>5</border>													<object class="wxChoice" name="category">														<selection>0</selection>														<content />													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText1122">														<label>Družstvo:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL|wxEXPAND</flag>													<border>5</border>													<object class="wxComboBox" name="squad">														<style>wxCB_SORT</style>														<value></value>														<content />													</object>												</object>											</object>										</object>									</object>								</object>								<object class="sizeritem">									<option>0</option>									<flag>wxALL|wxEXPAND</flag>									<border>17</border>									<object class="wxBoxSizer">										<orient>wxVERTICAL</orient>									</object>								</object>							</object>						</object>						<object class="sizeritem">							<option>1</option>							<flag>wxEXPAND</flag>							<border>0</border>							<object class="wxBoxSizer">								<orient>wxVERTICAL</orient>								<object class="sizeritem">									<option>0</option>									<flag>wxALL|wxEXPAND</flag>									<border>5</border>									<object class="wxStaticBoxSizer">										<orient>wxVERTICAL</orient>										<label>Psovod</label>										<object class="sizeritem">											<option>0</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText1">														<label>Jméno:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>													<border>5</border>													<object class="wxTextCtrl" name="handler_name">														<value></value>														<maxlength>0</maxlength>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>0</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText2">														<label>Příjmení:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>													<border>5</border>													<object class="wxTextCtrl" name="handler_surname">														<value></value>														<maxlength>0</maxlength>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText21">														<label>OSA:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL</flag>													<border>5</border>													<object class="wxTextCtrl" name="osa">														<value></value>														<maxlength>0</maxlength>													</object>												</object>											</object>										</object>									</object>								</object>								<object class="sizeritem">									<option>0</option>									<flag>wxALL|wxEXPAND</flag>									<border>5</border>									<object class="wxStaticBoxSizer">										<orient>wxVERTICAL</orient>										<label>Účast</label>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText1121">														<label>Zaplaceno:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxTextCtrl" name="paid">														<value></value>														<maxlength>0</maxlength>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText11211">														<label>Standardně vyřazen:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxChoice" name="def_sort">														<tooltip>Pokud je nastaveno na Ano, je tým standardně vyřazen ze všech běhů a musíte jej do jednotlivých běhů ručně zařadit.</tooltip>														<selection>0</selection>														<content />													</object>												</object>											</object>										</object>									</object>								</object>								<object class="sizeritem">									<option>1</option>									<flag>wxALL|wxEXPAND</flag>									<border>5</border>									<object class="wxStaticBoxSizer">										<orient>wxVERTICAL</orient>										<label>Prezence</label>										<object class="sizeritem">											<option>1</option>											<flag>wxALL|wxEXPAND</flag>											<border>5</border>											<object class="unknown" name="presentList" />										</object>									</object>								</object>								<object class="sizeritem">									<option>0</option>									<flag>wxALL|wxEXPAND</flag>									<border>5</border>									<object class="wxStdDialogButtonSizer">										<object class="button">											<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>											<border>5</border>											<object class="wxButton" name="wxID_SAVE">												<label>&amp;Save</label>											</object>										</object>										<object class="button">											<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>											<border>5</border>											<object class="wxButton" name="wxID_CANCEL">												<label>&amp;Cancel</label>											</object>										</object>									</object>								</object>							</object>						</object>					</object>				</object>			</object>		</object>	</object>	<object class="wxDialog" name="startupDialog">		<style>wxCAPTION|wxCLOSE_BOX|wxDIALOG_NO_PARENT</style>		<title>Agi</title>		<centered>1</centered>		<object class="wxBoxSizer">			<orient>wxVERTICAL</orient>			<object class="sizeritem">				<option>1</option>				<flag>wxEXPAND</flag>				<border>5</border>				<object class="wxPanel" name="m_panel13">					<style>wxTAB_TRAVERSAL</style>					<object class="wxBoxSizer">						<orient>wxVERTICAL</orient>						<object class="sizeritem">							<option>1</option>							<flag>wxEXPAND</flag>							<border>5</border>							<object class="wxBoxSizer">								<orient>wxHORIZONTAL</orient>								<object class="sizeritem">									<option>1</option>									<flag>wxALL|wxEXPAND</flag>									<border>5</border>									<object class="wxStaticBoxSizer">										<orient>wxHORIZONTAL</orient>										<label>Otevřít závod</label>										<object class="sizeritem">											<option>1</option>											<flag>wxALIGN_CENTER_VERTICAL</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxVERTICAL</orient>												<object class="sizeritem">													<option>1</option>													<flag>wxALIGN_CENTER|wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxButton" name="openButton">														<label>Otevřít</label>														<default>0</default>													</object>												</object>											</object>										</object>									</object>								</object>								<object class="sizeritem">									<option>1</option>									<flag>wxALL|wxEXPAND</flag>									<border>5</border>									<object class="wxStaticBoxSizer">										<orient>wxVERTICAL</orient>										<label>Založit závod</label>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText1111">														<label>Název:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxTextCtrl" name="competition_name">														<value></value>														<maxlength>0</maxlength>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText11111">														<label>Od data:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL</flag>													<border>5</border>													<object class="wxDatePickerCtrl" name="date_from">														<style>wxDP_DROPDOWN</style>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>1</option>											<flag>wxEXPAND</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxHORIZONTAL</orient>												<object class="sizeritem">													<option>3</option>													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>													<border>5</border>													<object class="wxStaticText" name="m_staticText11112">														<label>Do data:</label>														<wrap>-1</wrap>													</object>												</object>												<object class="sizeritem">													<option>5</option>													<flag>wxALL</flag>													<border>5</border>													<object class="wxDatePickerCtrl" name="date_to">														<style>wxDP_DROPDOWN</style>													</object>												</object>											</object>										</object>										<object class="sizeritem">											<option>1</option>											<flag>wxALIGN_CENTER|wxALIGN_CENTER_VERTICAL|wxALL</flag>											<border>5</border>											<object class="wxButton" name="createButton">												<label>Založit</label>												<default>0</default>											</object>										</object>									</object>								</object>								<object class="sizeritem">									<option>1</option>									<flag>wxALL|wxEXPAND</flag>									<border>5</border>									<object class="wxStaticBoxSizer">										<orient>wxHORIZONTAL</orient>										<label>Připojit k serveru</label>										<object class="sizeritem">											<option>1</option>											<flag>wxALIGN_CENTER_VERTICAL</flag>											<border>5</border>											<object class="wxBoxSizer">												<orient>wxVERTICAL</orient>												<object class="sizeritem">													<option>0</option>													<flag>wxEXPAND</flag>													<border>5</border>													<object class="wxBoxSizer">														<orient>wxHORIZONTAL</orient>														<object class="sizeritem">															<option>3</option>															<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>															<border>5</border>															<object class="wxStaticText" name="clientaddresslabel">																<label>Adresa:</label>																<wrap>-1</wrap>															</object>														</object>														<object class="sizeritem">															<option>8</option>															<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>															<border>5</border>															<object class="wxTextCtrl" name="clientAddress">																<value>localhost</value>																<maxlength>0</maxlength>															</object>														</object>													</object>												</object>												<object class="sizeritem">													<option>0</option>													<flag>wxALIGN_CENTER|wxALL</flag>													<border>5</border>													<object class="wxButton" name="connectButton">														<label>Připojit</label>														<default>0</default>													</object>												</object>											</object>										</object>									</object>								</object>							</object>						</object>						<object class="sizeritem">							<option>0</option>							<flag>wxALL|wxEXPAND</flag>							<border>5</border>							<object class="wxStdDialogButtonSizer">								<object class="button">									<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>									<border>5</border>									<object class="wxButton" name="wxID_CANCEL">										<label>&amp;Cancel</label>									</object>								</object>							</object>						</object>					</object>				</object>			</object>		</object>	</object>	<object class="wxMenu" name="startContext">		<label>Startovní listnina</label>		<object class="wxMenuItem" name="startSortBeginning">			<label>Zařadit na začátek</label>			<help></help>		</object>		<object class="wxMenuItem" name="startSortEnd">			<label>Zařadit na konec</label>			<help></help>		</object>		<object class="wxMenuItem" name="startSortRemove">			<label>Vyřadit z běhu</label>			<help></help>		</object>		<object class="separator" />		<object class="wxMenuItem" name="startSortReset">			<label>Zrušit ruční řazení</label>			<help></help>		</object>	</object></resource>
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<resource xmlns="http://www.wxwindows.org/wxxrc" version="2.3.0.1">
+	<object class="wxFrame" name="mainFrame">
+		<style>wxDEFAULT_FRAME_STYLE|wxCLIP_CHILDREN|wxTAB_TRAVERSAL</style>
+		<size>900,650</size>
+		<title>Agi</title>
+		<centered>1</centered>
+		<aui_managed>0</aui_managed>
+		<object class="wxPanel" name="m_panel10">
+			<style>wxTAB_TRAVERSAL</style>
+			<object class="wxBoxSizer">
+				<orient>wxVERTICAL</orient>
+				<object class="sizeritem">
+					<option>0</option>
+					<flag>wxALL|wxEXPAND</flag>
+					<border>5</border>
+					<object class="wxBoxSizer">
+						<orient>wxHORIZONTAL</orient>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+							<border>5</border>
+							<object class="wxStaticText" name="m_staticText45">
+								<label>Aktivní běh:</label>
+								<wrap>-1</wrap>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+							<border>5</border>
+							<object class="wxChoice" name="runChooser">
+								<selection>0</selection>
+								<content />
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+							<border>5</border>
+							<object class="wxStaticText" name="runInfo">
+								<label></label>
+								<wrap>-1</wrap>
+							</object>
+						</object>
+						<object class="spacer">
+							<option>2</option>
+							<flag>wxEXPAND</flag>
+							<border>5</border>
+							<size>0,0</size>
+						</object>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+							<border>5</border>
+							<object class="wxStaticText" name="stopwatchTime">
+								<font>
+									<size>22</size>
+									<family>swiss</family>
+									<style>normal</style>
+									<weight>normal</weight>
+									<underlined>0</underlined>
+									<face>Sans</face>
+								</font>
+								<label>0:00:00</label>
+								<wrap>-1</wrap>
+							</object>
+						</object>
+					</object>
+				</object>
+				<object class="sizeritem">
+					<option>1</option>
+					<flag>wxEXPAND | wxALL</flag>
+					<border>5</border>
+					<object class="wxNotebook" name="notebook">
+						<object class="notebookpage">
+							<label>Týmy</label>
+							<selected>1</selected>
+							<object class="wxPanel" name="teamPanel">
+								<style>wxFULL_REPAINT_ON_RESIZE|wxTAB_TRAVERSAL</style>
+								<object class="wxBoxSizer">
+									<orient>wxVERTICAL</orient>
+									<object class="sizeritem">
+										<option>1</option>
+										<flag>wxALL|wxEXPAND</flag>
+										<border>5</border>
+										<object class="unknown" name="teamList" />
+									</object>
+									<object class="sizeritem">
+										<option>0</option>
+										<flag>wxEXPAND</flag>
+										<border>5</border>
+										<object class="wxBoxSizer">
+											<orient>wxHORIZONTAL</orient>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+												<border>5</border>
+												<object class="wxStaticText" name="m_staticText51">
+													<label>Den pro prezenci:</label>
+													<wrap>-1</wrap>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxChoice" name="teamDaySelect">
+													<selection>0</selection>
+													<content />
+												</object>
+											</object>
+											<object class="spacer">
+												<option>1</option>
+												<flag>wxEXPAND</flag>
+												<border>5</border>
+												<size>0,0</size>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="printTeams">
+													<label>Tisk</label>
+													<default>0</default>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="deleteTeam">
+													<label>Smazat tým</label>
+													<default>0</default>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="newTeam">
+													<label>Přidat tým</label>
+													<default>0</default>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
+						<object class="notebookpage">
+							<label>Běhy</label>
+							<selected>0</selected>
+							<object class="wxPanel" name="runPanel">
+								<style>wxTAB_TRAVERSAL</style>
+								<object class="wxBoxSizer">
+									<orient>wxVERTICAL</orient>
+									<object class="sizeritem">
+										<option>1</option>
+										<flag>wxALL|wxEXPAND</flag>
+										<border>5</border>
+										<object class="unknown" name="runList" />
+									</object>
+									<object class="sizeritem">
+										<option>0</option>
+										<flag>wxEXPAND</flag>
+										<border>5</border>
+										<object class="wxBoxSizer">
+											<orient>wxHORIZONTAL</orient>
+											<object class="spacer">
+												<option>1</option>
+												<flag>wxEXPAND</flag>
+												<border>5</border>
+												<size>0,0</size>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="deleteRun">
+													<label>Smazat běh</label>
+													<default>0</default>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="newRun">
+													<label>Přidat běh</label>
+													<default>0</default>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
+						<object class="notebookpage">
+							<label>Startovní listiny</label>
+							<selected>0</selected>
+							<object class="wxPanel" name="startPanel">
+								<style>wxTAB_TRAVERSAL</style>
+								<object class="wxBoxSizer">
+									<orient>wxVERTICAL</orient>
+									<object class="sizeritem">
+										<option>1</option>
+										<flag>wxALL|wxEXPAND</flag>
+										<border>5</border>
+										<object class="unknown" name="startList" />
+									</object>
+									<object class="sizeritem">
+										<option>0</option>
+										<flag>wxEXPAND</flag>
+										<border>5</border>
+										<object class="wxBoxSizer">
+											<orient>wxHORIZONTAL</orient>
+											<object class="spacer">
+												<option>1</option>
+												<flag>wxEXPAND</flag>
+												<border>5</border>
+												<size>0,0</size>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="printStart">
+													<label>Tisk</label>
+													<default>0</default>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
+						<object class="notebookpage">
+							<label>Zápis</label>
+							<selected>0</selected>
+							<object class="wxPanel" name="entryPanel">
+								<style>wxTAB_TRAVERSAL|wxWANTS_CHARS</style>
+								<object class="wxBoxSizer">
+									<orient>wxVERTICAL</orient>
+									<object class="sizeritem">
+										<option>0</option>
+										<flag>wxEXPAND</flag>
+										<border>5</border>
+										<object class="wxBoxSizer">
+											<orient>wxHORIZONTAL</orient>
+											<object class="spacer">
+												<option>1</option>
+												<flag>wxEXPAND</flag>
+												<border>5</border>
+												<size>0,0</size>
+											</object>
+											<object class="sizeritem">
+												<option>3</option>
+												<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+												<border>5</border>
+												<object class="wxBoxSizer">
+													<orient>wxVERTICAL</orient>
+													<object class="sizeritem">
+														<option>0</option>
+														<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+														<border>5</border>
+														<object class="wxStaticText" name="handler">
+															<style>wxALIGN_LEFT</style>
+															<label></label>
+															<wrap>-1</wrap>
+														</object>
+													</object>
+													<object class="sizeritem">
+														<option>0</option>
+														<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+														<border>5</border>
+														<object class="wxStaticText" name="dog">
+															<style>wxALIGN_LEFT</style>
+															<label></label>
+															<wrap>-1</wrap>
+														</object>
+													</object>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxEXPAND|wxLEFT|wxRIGHT</flag>
+												<border>5</border>
+												<object class="wxBoxSizer">
+													<orient>wxVERTICAL</orient>
+													<object class="sizeritem">
+														<option>0</option>
+														<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+														<border>5</border>
+														<object class="wxStaticText" name="m_staticText390">
+															<label>Ch_yby</label>
+															<wrap>-1</wrap>
+														</object>
+													</object>
+													<object class="sizeritem">
+														<option>0</option>
+														<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+														<border>5</border>
+														<object class="unknown" name="mistakes" />
+													</object>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxEXPAND|wxLEFT|wxRIGHT</flag>
+												<border>5</border>
+												<object class="wxBoxSizer">
+													<orient>wxVERTICAL</orient>
+													<object class="sizeritem">
+														<option>0</option>
+														<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+														<border>5</border>
+														<object class="wxStaticText" name="m_staticText391">
+															<label>_Odmítnutí</label>
+															<wrap>-1</wrap>
+														</object>
+													</object>
+													<object class="sizeritem">
+														<option>0</option>
+														<flag>wxALL</flag>
+														<border>5</border>
+														<object class="unknown" name="refusals" />
+													</object>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxEXPAND</flag>
+												<border>5</border>
+												<object class="wxBoxSizer">
+													<orient>wxVERTICAL</orient>
+													<object class="sizeritem">
+														<option>0</option>
+														<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+														<border>5</border>
+														<object class="wxStaticText" name="m_staticText392">
+															<label>Č_as</label>
+															<wrap>-1</wrap>
+														</object>
+													</object>
+													<object class="sizeritem">
+														<option>0</option>
+														<flag>wxALL|wxEXPAND</flag>
+														<border>5</border>
+														<object class="wxTextCtrl" name="time">
+															<style>wxTE_PROCESS_ENTER|wxWANTS_CHARS</style>
+															<value></value>
+															<maxlength>0</maxlength>
+														</object>
+													</object>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+												<border>5</border>
+												<object class="wxCheckBox" name="disqualified">
+													<style>wxWANTS_CHARS</style>
+													<label>_Diskvalifikován</label>
+													<checked>0</checked>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+												<border>5</border>
+												<object class="wxBitmapButton" name="getTime">
+													<style>wxBU_AUTODRAW</style>
+													<enabled>0</enabled>
+													<bitmap>images/clock.png</bitmap>
+													<disabled>images/clock-disabled.png</disabled>
+													<default>0</default>
+												</object>
+											</object>
+											<object class="spacer">
+												<option>1</option>
+												<flag>wxEXPAND</flag>
+												<border>5</border>
+												<size>0,0</size>
+											</object>
+										</object>
+									</object>
+									<object class="sizeritem">
+										<option>1</option>
+										<flag>wxALL|wxEXPAND</flag>
+										<border>5</border>
+										<object class="unknown" name="entryList" />
+									</object>
+									<object class="sizeritem">
+										<option>0</option>
+										<flag>wxEXPAND</flag>
+										<border>5</border>
+										<object class="wxBoxSizer">
+											<orient>wxHORIZONTAL</orient>
+											<object class="spacer">
+												<option>1</option>
+												<flag>wxEXPAND</flag>
+												<border>5</border>
+												<size>0,0</size>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="printEntry">
+													<label>Tisk</label>
+													<default>0</default>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
+						<object class="notebookpage">
+							<label>Výsledky</label>
+							<selected>0</selected>
+							<object class="wxPanel" name="resultPanel">
+								<style>wxTAB_TRAVERSAL</style>
+								<object class="wxBoxSizer">
+									<orient>wxVERTICAL</orient>
+									<object class="sizeritem">
+										<option>1</option>
+										<flag>wxALL|wxEXPAND</flag>
+										<border>5</border>
+										<object class="unknown" name="resultList" />
+									</object>
+									<object class="sizeritem">
+										<option>0</option>
+										<flag>wxEXPAND</flag>
+										<border>5</border>
+										<object class="wxBoxSizer">
+											<orient>wxHORIZONTAL</orient>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="printCerts">
+													<label>Tisk diplomů</label>
+													<default>0</default>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+												<border>5</border>
+												<object class="wxSpinCtrl" name="certCount">
+													<style>wxSP_ARROW_KEYS</style>
+													<value>3</value>
+													<min>1</min>
+													<max>10</max>
+												</object>
+											</object>
+											<object class="spacer">
+												<option>1</option>
+												<flag>wxEXPAND</flag>
+												<border>5</border>
+												<size>0,0</size>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="exportResults">
+													<label>Export</label>
+													<default>0</default>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="printResults">
+													<label>Tisk</label>
+													<default>0</default>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
+						<object class="notebookpage">
+							<label>Součty</label>
+							<selected>0</selected>
+							<object class="wxPanel" name="sumsPanel">
+								<style>wxTAB_TRAVERSAL</style>
+								<object class="wxBoxSizer">
+									<orient>wxVERTICAL</orient>
+									<object class="sizeritem">
+										<option>1</option>
+										<flag>wxEXPAND</flag>
+										<border>5</border>
+										<object class="wxSplitterWindow" name="m_splitter2">
+											<style>wxSP_3D</style>
+											<sashpos>0</sashpos>
+											<gravity>0.2</gravity>
+											<minsize>0</minsize>
+											<orientation>vertical</orientation>
+											<object class="wxPanel" name="m_panel7">
+												<style>wxTAB_TRAVERSAL</style>
+												<object class="wxBoxSizer">
+													<orient>wxHORIZONTAL</orient>
+													<object class="sizeritem">
+														<option>1</option>
+														<flag>wxALL|wxEXPAND</flag>
+														<border>5</border>
+														<object class="unknown" name="sumsChooser" />
+													</object>
+												</object>
+											</object>
+											<object class="wxPanel" name="m_panel8">
+												<style>wxTAB_TRAVERSAL</style>
+												<object class="wxBoxSizer">
+													<orient>wxHORIZONTAL</orient>
+													<object class="sizeritem">
+														<option>4</option>
+														<flag>wxALL|wxEXPAND</flag>
+														<border>5</border>
+														<object class="unknown" name="sumsList" />
+													</object>
+												</object>
+											</object>
+										</object>
+									</object>
+									<object class="sizeritem">
+										<option>0</option>
+										<flag>wxEXPAND</flag>
+										<border>5</border>
+										<object class="wxBoxSizer">
+											<orient>wxHORIZONTAL</orient>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="printSumsCerts">
+													<label>Tisk diplomů</label>
+													<default>0</default>
+												</object>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+												<border>5</border>
+												<object class="wxSpinCtrl" name="sumsCertCount">
+													<style>wxSP_ARROW_KEYS</style>
+													<value>3</value>
+													<min>1</min>
+													<max>10</max>
+												</object>
+											</object>
+											<object class="spacer">
+												<option>1</option>
+												<flag>wxEXPAND</flag>
+												<border>5</border>
+												<size>0,0</size>
+											</object>
+											<object class="sizeritem">
+												<option>0</option>
+												<flag>wxALL</flag>
+												<border>5</border>
+												<object class="wxButton" name="printSums">
+													<label>Tisk</label>
+													<default>0</default>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
+					</object>
+				</object>
+			</object>
+		</object>
+		<object class="wxStatusBar" name="m_statusBar1">
+			<style>wxST_SIZEGRIP</style>
+			<fields>1</fields>
+		</object>
+		<object class="wxMenuBar" name="menubar">
+			<label>MyMenuBar</label>
+			<object class="wxMenu" name="fileMenu">
+				<label>Soubor</label>
+				<object class="wxMenuItem" name="importTeams">
+					<label>Import týmů z kacr.info</label>
+					<help></help>
+				</object>
+				<object class="wxMenuItem" name="csvExport">
+					<label>Export výsledků pro kacr.info</label>
+					<help></help>
+				</object>
+				<object class="wxMenuItem" name="competitionSettings">
+					<label>Parametry závodu</label>
+					<help></help>
+				</object>
+				<object class="separator" />
+				<object class="wxMenuItem" name="randomizeStartNums">
+					<label>Vygenerovat náhodná startovní čísla</label>
+					<help></help>
+				</object>
+				<object class="wxMenuItem" name="randomizeStartNumsWithCats">
+					<label>Vygenerovat náhodná startovní čísla s ohledem na kategorie</label>
+					<help></help>
+				</object>
+				<object class="separator" />
+				<object class="wxMenuItem" name="aboutMenu">
+					<label>O programu</label>
+					<help></help>
+				</object>
+			</object>
+			<object class="wxMenu" name="stopwatchMenu">
+				<label>Stopky</label>
+				<object class="wxMenuItem" name="connectSimpleStopwatch">
+					<label>Připojit TRV-2007</label>
+					<help></help>
+				</object>
+				<object class="wxMenuItem" name="connectAdvancedStopwatch">
+					<label>Připojit TRV-2010</label>
+					<help></help>
+				</object>
+			</object>
+		</object>
+	</object>
+	<object class="wxDialog" name="runDialog">
+		<style>wxDEFAULT_DIALOG_STYLE|wxTAB_TRAVERSAL</style>
+		<title></title>
+		<centered>1</centered>
+		<object class="wxBoxSizer">
+			<orient>wxVERTICAL</orient>
+			<object class="sizeritem">
+				<option>0</option>
+				<flag>wxEXPAND</flag>
+				<border>5</border>
+				<object class="wxPanel" name="m_panel9">
+					<style>wxTAB_TRAVERSAL</style>
+					<object class="wxBoxSizer">
+						<orient>wxHORIZONTAL</orient>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag></flag>
+							<border>5</border>
+							<object class="wxBoxSizer">
+								<orient>wxVERTICAL</orient>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticBoxSizer">
+										<orient>wxVERTICAL</orient>
+										<label>Parametry</label>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText111">
+														<label>Název běhu:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="name">
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText1">
+														<label>Délka:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>4</option>
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="length">
+														<style>wxTE_RIGHT</style>
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>1</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxBOTTOM|wxRIGHT|wxTOP</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText40">
+														<label>m</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText12">
+														<label>Počet překážek:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="hurdles">
+														<style>wxTE_RIGHT</style>
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText11">
+														<label>Typ:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxChoice" name="variant">
+														<selection>0</selection>
+														<content />
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText113">
+														<label>Varianta:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxChoice" name="style">
+														<selection>0</selection>
+														<content />
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText14">
+														<label>Velikost:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxChoice" name="size">
+														<selection>0</selection>
+														<content />
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText112">
+														<label>Kategorie:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxChoice" name="category">
+														<selection>0</selection>
+														<content />
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText1112">
+														<label>Družstva:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxChoice" name="squads">
+														<selection>0</selection>
+														<content />
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText1111">
+														<label>Rozhodčí:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="judge">
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText121">
+														<label>Den:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxChoice" name="day">
+														<selection>0</selection>
+														<content />
+													</object>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticBoxSizer">
+										<orient>wxVERTICAL</orient>
+										<label>Čas</label>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText1121">
+														<label>Výpočet času:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxChoice" name="time_calc">
+														<selection>0</selection>
+														<content />
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText13">
+														<label>Standardní:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>4</option>
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="time">
+														<style>wxTE_RIGHT</style>
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>1</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxBOTTOM|wxRIGHT|wxTOP</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="time_suffix">
+														<label>s</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText15">
+														<label>Maximální:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>4</option>
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="max_time">
+														<style>wxTE_RIGHT</style>
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>1</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxBOTTOM|wxRIGHT|wxTOP</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="max_time_suffix">
+														<label>s</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText151">
+														<label>Minimální rychlost:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>4</option>
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="min_speed">
+														<style>wxTE_RIGHT</style>
+														<enabled>0</enabled>
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>1</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxBOTTOM|wxRIGHT|wxTOP</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="max_time_suffix1">
+														<label>m/s</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxBOTTOM|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxBoxSizer">
+										<orient>wxVERTICAL</orient>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxCheckBox" name="generateRuns">
+												<label>Vygenerovat běhy ostatních kategorií</label>
+												<checked>0</checked>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxEXPAND</flag>
+							<border>5</border>
+							<object class="wxBoxSizer">
+								<orient>wxVERTICAL</orient>
+								<object class="sizeritem">
+									<option>1</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticBoxSizer">
+										<orient>wxVERTICAL</orient>
+										<label>Řazení podle výsledků jiného běhu</label>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxALL|wxEXPAND</flag>
+											<border>5</border>
+											<object class="unknown" name="sort_run_id" />
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>1</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticBoxSizer">
+										<orient>wxVERTICAL</orient>
+										<label>Omezení plemen</label>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxALL|wxEXPAND</flag>
+											<border>5</border>
+											<object class="unknown" name="breedList" />
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALL|wxEXPAND|wxTOP</flag>
+									<border>5</border>
+									<object class="wxStdDialogButtonSizer">
+										<object class="button">
+											<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+											<border>5</border>
+											<object class="wxButton" name="wxID_SAVE">
+												<label>&amp;Save</label>
+											</object>
+										</object>
+										<object class="button">
+											<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+											<border>5</border>
+											<object class="wxButton" name="wxID_CANCEL">
+												<label>&amp;Cancel</label>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
+					</object>
+				</object>
+			</object>
+		</object>
+	</object>
+	<object class="wxDialog" name="competitionSettingsDialog">
+		<style>wxDEFAULT_DIALOG_STYLE</style>
+		<title></title>
+		<centered>1</centered>
+		<object class="wxBoxSizer">
+			<orient>wxVERTICAL</orient>
+			<object class="sizeritem">
+				<option>1</option>
+				<flag>wxEXPAND</flag>
+				<border>5</border>
+				<object class="wxPanel" name="m_panel12">
+					<style>wxTAB_TRAVERSAL</style>
+					<object class="wxBoxSizer">
+						<orient>wxVERTICAL</orient>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxEXPAND</flag>
+							<border>5</border>
+							<object class="wxBoxSizer">
+								<orient>wxHORIZONTAL</orient>
+								<object class="sizeritem">
+									<option>3</option>
+									<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+									<border>5</border>
+									<object class="wxStaticText" name="m_staticText111">
+										<label>Název závodu:</label>
+										<wrap>-1</wrap>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>5</option>
+									<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+									<border>5</border>
+									<object class="wxTextCtrl" name="competition_name">
+										<value></value>
+										<maxlength>0</maxlength>
+									</object>
+								</object>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxEXPAND</flag>
+							<border>5</border>
+							<object class="wxStdDialogButtonSizer">
+								<object class="button">
+									<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+									<border>5</border>
+									<object class="wxButton" name="wxID_SAVE">
+										<label>&amp;Save</label>
+									</object>
+								</object>
+								<object class="button">
+									<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+									<border>5</border>
+									<object class="wxButton" name="wxID_CANCEL">
+										<label>&amp;Cancel</label>
+									</object>
+								</object>
+							</object>
+						</object>
+					</object>
+				</object>
+			</object>
+		</object>
+	</object>
+	<object class="wxDialog" name="teamDialog">
+		<style>wxDEFAULT_DIALOG_STYLE|wxTAB_TRAVERSAL</style>
+		<title></title>
+		<centered>1</centered>
+		<object class="wxBoxSizer">
+			<orient>wxVERTICAL</orient>
+			<object class="sizeritem">
+				<option>0</option>
+				<flag>wxEXPAND</flag>
+				<border>5</border>
+				<object class="wxPanel" name="m_panel11">
+					<style>wxTAB_TRAVERSAL</style>
+					<object class="wxBoxSizer">
+						<orient>wxHORIZONTAL</orient>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxEXPAND</flag>
+							<border>0</border>
+							<object class="wxBoxSizer">
+								<orient>wxVERTICAL</orient>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>20</border>
+									<object class="wxBoxSizer">
+										<orient>wxHORIZONTAL</orient>
+										<object class="sizeritem">
+											<option>3</option>
+											<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="m_staticText111">
+												<style>wxALIGN_LEFT</style>
+												<label>Číslo průkazu:</label>
+												<wrap>-1</wrap>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>4</option>
+											<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+											<border>5</border>
+											<object class="wxTextCtrl" name="number">
+												<value></value>
+												<maxlength>0</maxlength>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxALIGN_CENTER_VERTICAL</flag>
+											<border>0</border>
+											<object class="wxBitmapButton" name="getTeamFromWeb">
+												<style>wxBU_AUTODRAW</style>
+												<tooltip>Získat informace o průkazu z databáze kacr.info</tooltip>
+												<bitmap>images/world_link.png</bitmap>
+												<default>0</default>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticBoxSizer">
+										<orient>wxVERTICAL</orient>
+										<label>Pes</label>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText11">
+														<label>Jméno:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="dog_name">
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText12">
+														<label>Chovná stanice:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="dog_kennel">
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText113">
+														<label>Přezdívka:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="dog_nick">
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText13">
+														<label>Plemeno:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxChoice" name="dog_breed_id">
+														<selection>0</selection>
+														<content />
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText14">
+														<label>Velikost:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxChoice" name="size">
+														<selection>0</selection>
+														<content />
+													</object>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticBoxSizer">
+										<orient>wxVERTICAL</orient>
+										<label>Průkaz:</label>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText112">
+														<label>Kategorie:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxChoice" name="category">
+														<selection>0</selection>
+														<content />
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText1122">
+														<label>Družstvo:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxComboBox" name="squad">
+														<style>wxCB_SORT</style>
+														<value></value>
+														<content />
+													</object>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>17</border>
+									<object class="wxBoxSizer">
+										<orient>wxVERTICAL</orient>
+									</object>
+								</object>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxEXPAND</flag>
+							<border>0</border>
+							<object class="wxBoxSizer">
+								<orient>wxVERTICAL</orient>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticBoxSizer">
+										<orient>wxVERTICAL</orient>
+										<label>Psovod</label>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText1">
+														<label>Jméno:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="handler_name">
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText2">
+														<label>Příjmení:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="handler_surname">
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText21">
+														<label>OSA:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="osa">
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticBoxSizer">
+										<orient>wxVERTICAL</orient>
+										<label>Účast</label>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText1121">
+														<label>Zaplaceno:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="paid">
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText11211">
+														<label>Standardně vyřazen:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxChoice" name="def_sort">
+														<tooltip>Pokud je nastaveno na Ano, je tým standardně vyřazen ze všech běhů a musíte jej do jednotlivých běhů ručně zařadit.</tooltip>
+														<selection>0</selection>
+														<content />
+													</object>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>1</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticBoxSizer">
+										<orient>wxVERTICAL</orient>
+										<label>Prezence</label>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxALL|wxEXPAND</flag>
+											<border>5</border>
+											<object class="unknown" name="presentList" />
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStdDialogButtonSizer">
+										<object class="button">
+											<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+											<border>5</border>
+											<object class="wxButton" name="wxID_SAVE">
+												<label>&amp;Save</label>
+											</object>
+										</object>
+										<object class="button">
+											<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+											<border>5</border>
+											<object class="wxButton" name="wxID_CANCEL">
+												<label>&amp;Cancel</label>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
+					</object>
+				</object>
+			</object>
+		</object>
+	</object>
+	<object class="wxDialog" name="startupDialog">
+		<style>wxCAPTION|wxCLOSE_BOX|wxDIALOG_NO_PARENT</style>
+		<title>Agi</title>
+		<centered>1</centered>
+		<object class="wxBoxSizer">
+			<orient>wxVERTICAL</orient>
+			<object class="sizeritem">
+				<option>1</option>
+				<flag>wxEXPAND</flag>
+				<border>5</border>
+				<object class="wxPanel" name="m_panel13">
+					<style>wxTAB_TRAVERSAL</style>
+					<object class="wxBoxSizer">
+						<orient>wxVERTICAL</orient>
+						<object class="sizeritem">
+							<option>1</option>
+							<flag>wxEXPAND</flag>
+							<border>5</border>
+							<object class="wxBoxSizer">
+								<orient>wxHORIZONTAL</orient>
+								<object class="sizeritem">
+									<option>1</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticBoxSizer">
+										<orient>wxHORIZONTAL</orient>
+										<label>Otevřít závod</label>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxALIGN_CENTER_VERTICAL</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxVERTICAL</orient>
+												<object class="sizeritem">
+													<option>1</option>
+													<flag>wxALIGN_CENTER|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxButton" name="openButton">
+														<label>Otevřít</label>
+														<default>0</default>
+													</object>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>1</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticBoxSizer">
+										<orient>wxVERTICAL</orient>
+										<label>Založit závod</label>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText1111">
+														<label>Název:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="competition_name">
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText11111">
+														<label>Od data:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxDatePickerCtrl" name="date_from">
+														<style>wxDP_DROPDOWN</style>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>3</option>
+													<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText11112">
+														<label>Do data:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>5</option>
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxDatePickerCtrl" name="date_to">
+														<style>wxDP_DROPDOWN</style>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxALIGN_CENTER|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+											<border>5</border>
+											<object class="wxButton" name="createButton">
+												<label>Založit</label>
+												<default>0</default>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>1</option>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticBoxSizer">
+										<orient>wxHORIZONTAL</orient>
+										<label>Připojit k serveru</label>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxALIGN_CENTER_VERTICAL</flag>
+											<border>5</border>
+											<object class="wxBoxSizer">
+												<orient>wxVERTICAL</orient>
+												<object class="sizeritem">
+													<option>0</option>
+													<flag>wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxBoxSizer">
+														<orient>wxHORIZONTAL</orient>
+														<object class="sizeritem">
+															<option>3</option>
+															<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+															<border>5</border>
+															<object class="wxStaticText" name="clientaddresslabel">
+																<label>Adresa:</label>
+																<wrap>-1</wrap>
+															</object>
+														</object>
+														<object class="sizeritem">
+															<option>8</option>
+															<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+															<border>5</border>
+															<object class="wxTextCtrl" name="clientAddress">
+																<value>localhost</value>
+																<maxlength>0</maxlength>
+															</object>
+														</object>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>0</option>
+													<flag>wxALIGN_CENTER|wxALL</flag>
+													<border>5</border>
+													<object class="wxButton" name="connectButton">
+														<label>Připojit</label>
+														<default>0</default>
+													</object>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxALL|wxEXPAND</flag>
+							<border>5</border>
+							<object class="wxStdDialogButtonSizer">
+								<object class="button">
+									<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+									<border>5</border>
+									<object class="wxButton" name="wxID_CANCEL">
+										<label>&amp;Cancel</label>
+									</object>
+								</object>
+							</object>
+						</object>
+					</object>
+				</object>
+			</object>
+		</object>
+	</object>
+	<object class="wxMenu" name="startContext">
+		<label>Startovní listnina</label>
+		<object class="wxMenuItem" name="startSortBeginning">
+			<label>Zařadit na začátek</label>
+			<help></help>
+		</object>
+		<object class="wxMenuItem" name="startSortEnd">
+			<label>Zařadit na konec</label>
+			<help></help>
+		</object>
+		<object class="wxMenuItem" name="startSortRemove">
+			<label>Vyřadit z běhu</label>
+			<help></help>
+		</object>
+		<object class="separator" />
+		<object class="wxMenuItem" name="startSortReset">
+			<label>Zrušit ruční řazení</label>
+			<help></help>
+		</object>
+	</object>
+</resource>

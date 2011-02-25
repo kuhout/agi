@@ -283,9 +283,11 @@ def GetRowsAsDicts(selectable):
   t = session.execute(selectable).fetchall()
   return map(dict, t)
 
-def RandomizeStartNums():
-  teams = Team.query.all()
-  random.shuffle(teams)
+def RandomizeStartNums(cats = False):
+  query = Team.query
+  if cats:
+    query = query.order_by(Team.table.c.size, Team.table.c.category)
+  teams = query.order_by(func.random()).all()
 
   for i in range(len(teams)):
     teams[i].start_num = i+1

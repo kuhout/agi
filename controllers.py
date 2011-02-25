@@ -157,8 +157,14 @@ class TeamController(DefaultController):
     printing.PrintTeams(l)
 
   def OnRandomizeStartNums(self, evt):
+    self._randomizeStartNums(cats = False)
+
+  def OnRandomizeStartNumsWithCats(self, evt):
+    self._randomizeStartNums(cats = True)
+
+  def _randomizeStartNums(self, cats = False):
     if wx.MessageBox(u"Zamícháním startovních čísel změníte pořadí startovních listin. Opravdu chcete pokračovat?", "Kontrola", wx.YES_NO) == wx.YES:
-      Client().RandomizeStartNums()
+      Client().RandomizeStartNums(cats)
 
   def OnImportTeams(self, evt):
     def utf_8_encoder(unicode_csv_data):
@@ -191,16 +197,19 @@ class TeamController(DefaultController):
       return False
 
   def SetPresenceFromList(self, team, state):
-      kwargs = {}
-      if state and not team['start_num']:
-        kwargs['grab_start_num'] = True
-      day = self.panel.FindWindowByName("teamDaySelect").GetSelection()
+    kwargs = {}
+    day = self.panel.FindWindowByName("teamDaySelect").GetSelection()
+    days = self.panel.FindWindowByName("teamDaySelect").GetCount()
+    if state and not team['start_num']:
+      kwargs['grab_start_num'] = True
+      team['present'] = ~(2**(days-day+1)) << day
+    else:
       a = 1 << day
       if not state:
         team['present'] = team['present'] & ~(a)
       else:
         team['present'] = team['present'] | a
-      Client().Post(self.objName, team, **kwargs)
+    Client().Post(self.objName, team, **kwargs)
 
   def GetPresenceFromList(self, team):
     day = self.panel.FindWindowByName("teamDaySelect").GetSelection()

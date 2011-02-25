@@ -147,8 +147,8 @@ class Client(object):
   def _postedData(self):
     pass
 
-  def RandomizeStartNums(self):
-    reactor.callFromThread(self._callRemote, "randomize_start_nums", [])
+  def RandomizeStartNums(self, cats = False):
+    reactor.callFromThread(self._callRemote, "randomize_start_nums", [], cats)
 
   def ImportTeams(self, teams):
     reactor.callFromThread(self._callRemote, "import_teams", [], teams)
@@ -193,8 +193,8 @@ class ServerResponder(pb.Root):
     db.ServerCache().Initialize(self.lock)
     self.clients = []
 
-  def remote_randomize_start_nums(self):
-    u = db.RandomizeStartNums()
+  def remote_randomize_start_nums(self, cats = False):
+    u = db.RandomizeStartNums(cats)
     self._invalidate_remote_caches(u)
 
   def remote_import_teams(self, teams):
